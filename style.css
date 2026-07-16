@@ -1,243 +1,226 @@
-/* --- ESTILOS PARA EL MÓDULO FISCAL --- */
-.fiscal-lista { width: 90%; max-width: 400px; margin-top: 20px; }
-.fiscal-item { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    padding: 15px; 
-    border-bottom: 2px solid #eee; 
-    background: #fff;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-.fiscal-unidad { font-size: 28px; font-weight: bold; color: #333; }
-.fiscal-ruta { font-size: 14px; font-weight: bold; }
-.fiscal-tiempo { font-size: 40px; font-weight: bold; color: #28a745; }
-
-/* Estilos generales */
-body, html { margin: 0; padding: 0; font-family: Arial, sans-serif; height: 100%; width: 100%; overflow: hidden; background-color: #FFFFFF; }
-
-.pantalla-menu {
-    height: 100vh;
-    display: none; /* Control de flujo dinámico con JS */
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    position: relative;
-    overflow-y: auto; /* Esto permite que la pantalla suba y baje */
-    justify-content: flex-start; /* Empezamos desde arriba */
-    padding-top: 40px;
+body {
+  margin: 0;
+  overflow: hidden;
+  background-color: #000;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #fff;
+  user-select: none;
+  touch-action: none;
 }
 
-h2 { margin-bottom: 25px; color: #333; font-size: 24px; }
+canvas { display: block; }
 
-/* Casillas de Entrada (Inputs y Selects) */
-.input-group { margin-bottom: 15px; width: 100%; display: flex; justify-content: center; }
-.input-group input, .input-group select { padding: 12px; font-size: 16px; width: 284px; border: 1px solid #ccc; border-radius: 8px; outline: none; background-color: white; box-sizing: border-box; }
-.input-group input:focus, .input-group select:focus { border-color: #007BFF; }
-
-/* Estilos para el Logo Cambiable en los Menús */
-.logo-menu-variable {
-    width: 120px; 
-    height: auto;
-    max-height: 420px;
-    object-fit: contain;
-    margin-bottom: 20px;
-    border-radius: 16px;
-    transition: width 0.2s ease;
+#pantalla-inicio {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  z-index: 20; cursor: pointer;
+  transition: opacity 0.5s ease;
 }
 
-/* Botones del Sistema */
-.btn-rol { padding: 15px 40px; font-size: 20px; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 10px; width: 220px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s, background-color 0.2s; }
-.btn-rol:active { transform: scale(0.98); }
-.bg-usuario { background-color: #28a745; }
-.bg-usuario:hover { background-color: #218838; }
-.bg-chofer { background-color: #007BFF; }
-.bg-chofer:hover { background-color: #0069d9; }
-.bg-fiscal { background-color: #000000; }
-.bg-fiscal:hover { background-color: #0069d9; }
-.bg-admin { background-color: #495057; }
+#pantalla-inicio h1 { font-weight: 300; letter-spacing: 6px; margin-bottom: 10px; text-align: center; }
+#pantalla-inicio p { color: #888; font-size: 14px; letter-spacing: 1px; text-align: center; }
 
-.btn-ingresar { padding: 12px 20px; font-size: 16px; background-color: #007BFF; color: white; border: none; border-radius: 8px; cursor: pointer; width: 284px; font-weight: bold; }
-.btn-volver { margin-top: 0px; background: none; border: none; color: #666; text-decoration: underline; cursor: pointer; font-size: 25px; }
-
-/* Splash */
-#pantalla-splash { display: flex; background-color: #FFFFFF; justify-content: center; }
-.logo-app { width: 150px; height: 150px; object-fit: contain; border-radius: 24px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); margin-bottom: 20px; cursor: pointer; transition: transform 0.3s; }
-
-.btn-admin-pequeno { position: absolute; bottom: 70px; font-size: 20px; color: #888; background: none; border: none; text-decoration: underline; cursor: pointer; padding: 10px; }
-
-.slider-container { width: 100%; margin-top: 10px; text-align: left; }
-.slider-labels { display: flex; justify-content: space-between; font-size: 11px; color: #666; margin-top: 4px; }
-.slider-input { width: 100%; cursor: pointer; height: 6px; background: #ddd; border-radius: 5px; outline: none; }
-
-.btn-borrar-parada {
-    background-color: #dc3545; color: white; border: none; padding: 5px 10px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 8px; display: block; width: 100%; text-align: center;
+#hud {
+  position: absolute; top: 20px; left: 20px; right: 20px;
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  pointer-events: none; z-index: 5;
 }
 
-/* PANEL ADMIN */
-.admin-scroll-container {
-    width: 100%; height: 100vh; overflow-y: auto; box-sizing: border-box; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; background-color: #f4f6f9;
-}
-.admin-grid-layout {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; width: 100%; max-width: 1100px; margin-top: 20px; align-items: start;
-}
-.admin-columna { display: flex; flex-direction: column; gap: 20px; width: 100%; }
-.admin-card {
-    background: white; padding: 20px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e1e8ed; text-align: left; box-sizing: border-box; width: 100%;
-}
-.admin-card label { font-size: 12px; font-weight: bold; display: block; margin-bottom: 8px; }
-.admin-card input, .admin-card select { width: 100% !important; }
-
-.btn-navegacion-admin {
-    width: 100%; padding: 16px; font-size: 16px; font-weight: bold; color: white; border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: background-color 0.2s, transform 0.1s; text-align: center;
-}
-.btn-navegacion-admin:active { transform: scale(0.98); }
-
-/* DISEÑO EN UNA SOLA COLUMNA */
-.columnas-operativas-container {
-    display: flex; 
-    flex-direction: column; 
-    gap: 20px; 
-    width: 100%; 
-    max-width: 450px; 
-    margin-top: 20px; 
-    box-sizing: border-box; 
-    padding: 0 20px;
-    margin-bottom: 40px; 
+.panel {
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(8px);
+  padding: 10px 15px; border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 13px; display: flex; gap: 10px; align-items: center;
 }
 
-.card-columna-operativa {
-    background: white; 
-    padding: 25px 20px; 
-    border-radius: 16px; 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
-    border: 1px solid #eef2f5; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    box-sizing: border-box;
-    width: 100%;
+.text-muted { color: #aaa; font-weight: 300; }
+
+#menu-config {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(10, 15, 30, 0.95);
+  padding: 20px 30px; border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 9999;
+  width: 90%; max-width: 350px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.9);
+  max-height: 80vh; overflow-y: auto;
 }
 
-/* MAPA Y CONTROLES */
-#vista-mapa { display: none; height: 100vh; width: 100vw; position: relative; z-index: 1; }
-#mapa { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
-#btn-regresar { position: absolute; top: 20px; left: 50px; padding: 8px 15px; font-size: 14px; background-color: #333; color: white; border: none; border-radius: 5px; cursor: pointer; z-index: 1000; }
-
-#btn-estado { position: absolute; top: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; border: 3px solid white; background-color: red; color: white; font-size: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index: 1000; display: none; transition: background-color 0.3s ease; }
-#btn-estado.activo { background-color: #28a745; }
-
-/* LEYENDA FLOTANTE */
-#leyenda-mapa {
-    position: absolute; top: 15px; left:80%; transform: translateX(-70%); background: rgba(255, 255, 255, 0.95); border: 1px solid #ccc; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; width: 150px; display: none; flex-direction: column; overflow: hidden; transition: max-height 0.3s ease; max-height: 180px;
-}
-#leyenda-mapa.minimizado { max-height: 38px; }
-.leyenda-cabecera { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 8px 14px; border-bottom: 1px solid #eee; cursor: pointer; }
-.leyenda-cabecera span { font-size: 13px; font-weight: bold; color: #333; }
-.btn-toggle-leyenda { background: none; border: none; font-size: 12px; cursor: pointer; color: #007BFF; font-weight: bold; padding: 2px 6px; }
-.leyenda-cuerpo { padding: 12px; display: flex; flex-direction: column; gap: 10px; background: white; }
-.leyenda-item { display: flex; align-items: center; gap: 12px; text-align: left; font-size: 12px; color: #555; font-weight: 500; }
-.leyenda-item img { width: 24px; height: 24px; object-fit: contain; }
-
-/* BOTÓN DE TIEMPOS VERTICAL EXCLUSIVO (LADO DERECHO) */
-#btn-abrir-tiempos { 
-    position: absolute; 
-    top: 75%; 
-    right: 30px; 
-    transform: translateY(-70%); 
-    padding: 15px 20px; 
-    font-size: 14px; 
-    font-weight: bold; 
-    background-color: #28a745; 
-    color: white; 
-    border: none; 
-    border-radius: 8px; 
-    cursor: pointer; 
-    z-index: 1000; 
-    display: none; 
-    box-shadow: 0 4px 10px rgba(0,0,0,0.25); 
-    writing-mode: vertical-lr; 
-    text-orientation: mixed;
-    letter-spacing: 1px;
+#menu-config h2 {
+  margin-top: 0; font-size: 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 10px; margin-bottom: 15px;
 }
 
-/* PANEL DE TIEMPOS DESPLEGABLE */
-#panel-tiempos-desplegable {
-    position: absolute;
-    top: 0;
-    right: -100%; 
-    width: 100%;
-    height: 100vh;
-    background-color: #f4f6f9;
-    z-index: 2000;
-    transition: right 0.4s ease;
-    box-sizing: border-box;
-    padding: 30px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow-y: auto;
+.input-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.input-group label { font-size: 13px; color: #ccc; }
+.input-group input[type="range"] { flex: 1; margin-left: 10px; }
+
+button {
+  width: 100%; padding: 10px;
+  background: #fff; color: #000;
+  border: none; border-radius: 4px;
+  font-weight: 600; cursor: pointer;
+  transition: 0.2s;
 }
-#panel-tiempos-desplegable.activo {
-    right: 0; 
-}
-.lista-unidades-container {
-    width: 100%;
-    max-width: 500px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 20px;
-}
-.card-unidad-tiempo {
-    background: white;
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    border-left: 5px solid #007BFF;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    text-align: left;
-}
-.tiempo-badge {
-    background-color: #eef5ff;
-    color: #007BFF;
-    font-weight: bold;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 15px;
-}
-/* --- ESTILOS DEL CUADRO DE PASAJE (Encapsulados) --- */
-.crono-tarifa-wrapper {
-    background-color: #f8f9fa; /* Fondo gris muy claro y limpio */
-    padding: 15px;
-    border-radius: 12px;
-    border: 1px solid #e9ecef;
-    text-align: center;
-    margin: 20px auto; /* Centrado automático en el menú */
-    max-width: 300px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Sombra muy suave para que resalte apenas */
+button:hover { background: #ddd; }
+
+#lista-tour {
+  display: flex; flex-direction: column; margin-top: 10px;
+  max-height: 100px; overflow-y: auto; gap: 5px; font-size: 13px;
 }
 
-.crono-tarifa-titulo {
-    font-size: 0.8rem;
-    color: #6c757d;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 5px;
+.oculto { display: none !important; }
+
+.etiqueta-celeste {
+  position: absolute; color: rgba(255, 255, 255, 0.8);
+  font-size: 11px; font-weight: 500;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 2px 6px; border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.2);
+  pointer-events: none; transform: translate(-50%, -50%);
+  z-index: 4; white-space: nowrap;
 }
 
-.crono-tarifa-monto {
-    font-size: 2.5rem; /* Tamaño grande pero no excesivo */
-    font-weight: bold;
-    color: #000;
-    margin: 10px 0;
+.constelacion-etiqueta { color: #aaddff; border-color: rgba(170, 221, 255, 0.3); font-style: italic; font-size: 13px; background: rgba(0,20,40,0.6); }
+
+/* -------------------------------------
+   CONTROLES TÁCTILES ESTILO AZUL CLARO 
+-------------------------------------- */
+#controles-tactiles {
+  display: none; /* Se activa en móviles */
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 10;
 }
 
-.crono-tarifa-sub {
-    font-size: 0.75rem;
-    color: #999;
+/* Base de color para botones */
+.control-azul {
+  background: rgba(60, 180, 255, 0.2);
+  border: 2px solid rgba(100, 200, 255, 0.6);
+  color: rgba(220, 240, 255, 0.9);
+}
+
+.control-azul-base {
+  background: rgba(60, 180, 255, 0.1);
+  border: 2px solid rgba(100, 200, 255, 0.5);
+}
+
+.control-azul-solido { background: rgba(100, 200, 255, 0.8); }
+
+/* D-PAD (Cruceta) - Izquierda Arriba */
+#d-pad {
+  position: absolute; top: 40%; left: 30px;
+  display: flex; flex-direction: column; align-items: center;
+  pointer-events: auto;
+}
+.dpad-row { display: flex; justify-content: center; gap: 40px; margin: 4px 0; }
+.dpad-btn {
+  width: 45px; height: 45px; border-radius: 10px;
+  display: flex; justify-content: center; align-items: center;
+  font-size: 20px; touch-action: none; font-weight: bold;
+}
+.dpad-btn:active { background: rgba(100, 200, 255, 0.5); }
+.dpad-centro { width: 45px; height: 45px; } /* Espacio vacío central */
+
+/* JOYSTICK - Izquierda Abajo */
+#joystick-area {
+  position: absolute; bottom: 40px; left: 50px;
+  width: 110px; height: 110px; pointer-events: auto;
+}
+#joystick-base { width: 100%; height: 100%; border-radius: 50%; position: relative; touch-action: none; }
+#joystick-knob {
+  width: 45px; height: 45px; border-radius: 50%;
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 15px rgba(100, 200, 255, 0.6);
+  pointer-events: none;
+}
+
+/* BOTONES A Y B - Derecha */
+#botones-area {
+  position: absolute; bottom: 60px; right: 50px;
+  width: 140px; height: 140px; pointer-events: auto;
+}
+.btn-accion {
+  width: 65px; height: 65px; border-radius: 50%;
+  font-size: 26px; font-weight: bold; position: absolute;
+  display: flex; justify-content: center; align-items: center;
+  touch-action: none;
+}
+.btn-accion:active { background: rgba(100, 200, 255, 0.5); }
+
+/* Distribución cruzada: A arriba-derecha, B abajo-izquierda */
+#btn-avanzar { top: 0; right: 0; } /* Botón A */
+#btn-retroceder { bottom: 0; left: 0; } /* Botón B */
+
+@media (max-width: 1024px), (pointer: coarse) {
+  #controles-tactiles { display: block; }
+  .oculto-movil { display: none !important; }
+  #hud { top: 10px; left: 10px; right: 10px; }
+}
+/* Agrega esto al final de tu archivo style.css existente. 
+   Recuerda borrar las reglas que se llamaban "#d-pad", ".dpad-row", ".dpad-btn", y ".dpad-centro". */
+
+#info-ventana {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(10, 15, 30, 0.95);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(100, 200, 255, 0.4);
+  z-index: 1000;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+}
+
+#info-ventana img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#info-ventana h2 {
+  margin: 0 0 10px 0;
+  color: #64c8ff;
+  font-size: 22px;
+}
+
+#info-ventana p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #ddd;
+}
+
+#cerrar-info {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 50, 50, 0.2);
+  color: #ff8888;
+  border: 1px solid rgba(255, 50, 50, 0.5);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  font-weight: bold;
+}
+#cerrar-info:hover { background: rgba(255, 50, 50, 0.5); }
