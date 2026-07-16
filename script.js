@@ -17,24 +17,27 @@ if(audioFondo && volumenControl) {
 const listaEtiquetas = [];
 const objetosInteractivos = []; 
 
-// Datos para la ventana de información (puedes reemplazar las URLs con imágenes locales si lo deseas)
+// Instanciar el cargador de Modelos 3D GLTF/GLB
+const gltfLoader = new THREE.GLTFLoader();
+
 const baseDeDatosAstros = {
-    "Sol": { desc: "La estrella en el centro de nuestro sistema solar. Compuesta principalmente de hidrógeno y helio.", img: "https://upload.wikimedia.org/wikipedia/commons/b/b4/The_Sun_by_the_Atmospheric_Imaging_Assembly_of_NASA%27s_Solar_Dynamics_Observatory_-_20100819.jpg" },
-    "Mercurio": { desc: "El planeta más cercano al Sol y el más pequeño del Sistema Solar.", img: "https://upload.wikimedia.org/wikipedia/commons/d/d9/Mercury_in_color_-_Prockter07-edit1.jpg" },
-    "Venus": { desc: "El segundo planeta. Tiene una atmósfera densa que atrapa el calor en un efecto invernadero extremo.", img: "https://upload.wikimedia.org/wikipedia/commons/e/e5/Venus-real_color.jpg" },
-    "Tierra": { desc: "Nuestro hogar, el tercer planeta desde el Sol y el único conocido que alberga vida.", img: "https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg" },
-    "Marte": { desc: "El planeta rojo. Conocido por sus enormes volcanes y cañones.", img: "https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg" },
-    "Júpiter": { desc: "El gigante gaseoso más grande del Sistema Solar.", img: "https://upload.wikimedia.org/wikipedia/commons/2/2b/Jupiter_and_its_shrunken_Great_Red_Spot.jpg" },
-    "Saturno": { desc: "Famoso por su prominente sistema de anillos compuestos de hielo y roca.", img: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg" },
-    "Urano": { desc: "El gigante de hielo que gira de lado. Tiene un tenue color azul verdoso.", img: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Uranus2.jpg" },
-    "Neptuno": { desc: "El planeta más lejano, oscuro y frío, azotado por vientos supersónicos.", img: "https://upload.wikimedia.org/wikipedia/commons/5/56/Neptune_Full.jpg" },
-    "Plutón": { desc: "Planeta enano ubicado en el cinturón de Kuiper.", img: "https://upload.wikimedia.org/wikipedia/commons/e/ef/Pluto_in_True_Color_-_High-Res.jpg" },
-    "Voyager 1": { desc: "Sonda espacial lanzada en 1977. Es el objeto creado por humanos más alejado de la Tierra.", img: "https://upload.wikimedia.org/wikipedia/commons/d/d2/Voyager_spacecraft_model.png" },
-    "Voyager 2": { desc: "Hermana de la Voyager 1, es la única sonda que ha visitado Urano y Neptuno.", img: "https://upload.wikimedia.org/wikipedia/commons/d/d2/Voyager_spacecraft_model.png" }
+    "Sol": { desc: "Estrella central. Fuente de vida.", img: "https://upload.wikimedia.org/wikipedia/commons/b/b4/The_Sun_by_the_Atmospheric_Imaging_Assembly_of_NASA%27s_Solar_Dynamics_Observatory_-_20100819.jpg" },
+    "Mercurio": { desc: "El planeta más cercano al Sol.", img: "https://upload.wikimedia.org/wikipedia/commons/d/d9/Mercury_in_color_-_Prockter07-edit1.jpg" },
+    "Venus": { desc: "Planeta con efecto invernadero extremo.", img: "https://upload.wikimedia.org/wikipedia/commons/e/e5/Venus-real_color.jpg" },
+    "Tierra": { desc: "Nuestro hogar.", img: "https://upload.wikimedia.org/wikipedia/commons/9/97/The_Earth_seen_from_Apollo_17.jpg" },
+    "Marte": { desc: "El planeta rojo.", img: "https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg" },
+    "Júpiter": { desc: "Gigante gaseoso masivo.", img: "https://upload.wikimedia.org/wikipedia/commons/2/2b/Jupiter_and_its_shrunken_Great_Red_Spot.jpg" },
+    "Saturno": { desc: "Conocido por sus anillos.", img: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg" },
+    "Urano": { desc: "Gigante de hielo inclinado.", img: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Uranus2.jpg" },
+    "Neptuno": { desc: "Planeta azul oscuro y ventoso.", img: "https://upload.wikimedia.org/wikipedia/commons/5/56/Neptune_Full.jpg" },
+    "Plutón": { desc: "Planeta enano distante.", img: "https://upload.wikimedia.org/wikipedia/commons/e/ef/Pluto_in_True_Color_-_High-Res.jpg" },
+    "Voyager 1": { desc: "Sonda interestelar. Se aleja a 17 km/s.", img: "https://upload.wikimedia.org/wikipedia/commons/d/d2/Voyager_spacecraft_model.png" },
+    "Voyager 2": { desc: "Exploradora de los límites del sistema solar.", img: "https://upload.wikimedia.org/wikipedia/commons/d/d2/Voyager_spacecraft_model.png" },
+    "Alfa Centauri": { desc: "El sistema estelar más cercano a nuestro Sol (a 4.36 años luz). Consta de las estrellas A, B y Próxima.", img: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Alpha_Centauri_relative_sizes.svg" }
 };
 
 // ==========================================
-// 2. CREACIÓN DEL SISTEMA SOLAR, ÓRBITAS Y ASTEROIDES
+// 2. CREACIÓN DEL SISTEMA SOLAR Y MODELOS GLB
 // ==========================================
 const sunGeo = new THREE.SphereGeometry(120, 32, 32);
 const sunMat = new THREE.MeshBasicMaterial({ color: 0xffdd44 }); 
@@ -44,28 +47,50 @@ scene.add(sun);
 objetosInteractivos.push(sun);
 crearEtiquetaHTML("Sol", sun);
 
-const sunLight = new THREE.PointLight(0xffffff, 2, 50000);
+const sunLight = new THREE.PointLight(0xffffff, 2, 100000);
 scene.add(sunLight);
-scene.add(new THREE.AmbientLight(0x222222)); 
+scene.add(new THREE.AmbientLight(0x444444)); 
 
+// Función para cargar modelos GLB
+function cargarGLB(ruta, escala, objetoPadre) {
+    gltfLoader.load(ruta, (gltf) => {
+        const modelo = gltf.scene;
+        modelo.scale.set(escala, escala, escala);
+        objetoPadre.add(modelo);
+        // Ocultar la esfera de hitbox visualmente (pero dejarla interactiva para clics)
+        objetoPadre.children.forEach(child => {
+            if (child.type === 'Mesh' && child.geometry.type === 'SphereGeometry') {
+                child.material.transparent = true;
+                child.material.opacity = 0; // Transparente, pero los rayos láser del clic aún chocan aquí
+            }
+        });
+    }, undefined, (error) => { console.error('Fallo al cargar modelo: ' + ruta, error); });
+}
+
+// Datos con soporte para los modelos 3D que pasaste
+// NOTA: Ajusta `escalaGLB` si al cargar se ven muy grandes o pequeños.
 const datosPlanetas = [
-    { nombre: 'Mercurio', radio: 8, distancia: 300, color: 0x888888, velocidad: 0.01 },
-    { nombre: 'Venus', radio: 15, distancia: 450, color: 0xe3bb76, velocidad: 0.007 },
-    { nombre: 'Tierra', radio: 16, distancia: 650, color: 0x2233ff, velocidad: 0.005, 
-      lunas: [{nombre: 'Luna', radio: 4, distancia: 35, color: 0xaaaaaa, velocidad: 0.05}] },
-    { nombre: 'Marte', radio: 10, distancia: 850, color: 0xc1440e, velocidad: 0.004 },
-    { nombre: 'Júpiter', radio: 45, distancia: 1300, color: 0xb07f35, velocidad: 0.002 },
-    { nombre: 'Saturno', radio: 38, distancia: 1800, color: 0xe2bf7d, velocidad: 0.0009, tieneAnillos: true },
-    { nombre: 'Urano', radio: 25, distancia: 2300, color: 0x4b70dd, velocidad: 0.0004 },
-    { nombre: 'Neptuno', radio: 24, distancia: 2800, color: 0x274687, velocidad: 0.0001 },
-    { nombre: 'Plutón', radio: 4, distancia: 3300, color: 0xaabbcc, velocidad: 0.00005 }
+    { nombre: 'Mercurio', radio: 8, distancia: 300, color: 0x888888, velocidad: 0.01, rutaGLB: 'modelos 3d/mercurio_v1.1.glb', escalaGLB: 8 },
+    { nombre: 'Venus', radio: 15, distancia: 450, color: 0xe3bb76, velocidad: 0.007, rutaGLB: 'modelos 3d/venus.glb', escalaGLB: 15 },
+    { nombre: 'Tierra', radio: 16, distancia: 650, color: 0x2233ff, velocidad: 0.005, rutaGLB: 'modelos 3d/earth__terra_-_downloadable_model.glb', escalaGLB: 16, 
+      lunas: [
+          {nombre: 'Luna', radio: 4, distancia: 35, color: 0xaaaaaa, velocidad: 0.05, rutaGLB: 'modelos 3d/moon.glb', escalaGLB: 4},
+          {nombre: 'ISS', radio: 1.5, distancia: 22, color: 0xffffff, velocidad: 0.08, rutaGLB: 'modelos 3d/iss.glb', escalaGLB: 0.5},
+          {nombre: 'Hubble', radio: 1.2, distancia: 26, color: 0x999999, velocidad: 0.06, rutaGLB: 'modelos 3d/hubble_space_telescope.glb', escalaGLB: 0.5}
+      ] 
+    },
+    { nombre: 'Marte', radio: 10, distancia: 850, color: 0xc1440e, velocidad: 0.004, rutaGLB: 'modelos 3d/marte_v1.1.glb', escalaGLB: 10 },
+    { nombre: 'Júpiter', radio: 45, distancia: 1300, color: 0xb07f35, velocidad: 0.002, rutaGLB: 'modelos 3d/jupiter.glb', escalaGLB: 45 },
+    { nombre: 'Saturno', radio: 38, distancia: 1800, color: 0xe2bf7d, velocidad: 0.0009, tieneAnillos: true, rutaGLB: 'modelos 3d/saturno_v1.1.glb', escalaGLB: 38 },
+    { nombre: 'Urano', radio: 25, distancia: 2300, color: 0x4b70dd, velocidad: 0.0004 }, // Sin GLB
+    { nombre: 'Neptuno', radio: 24, distancia: 2800, color: 0x274687, velocidad: 0.0001 }, // Sin GLB
+    { nombre: 'Plutón', radio: 4, distancia: 3300, color: 0xaabbcc, velocidad: 0.00005, rutaGLB: 'modelos 3d/pluto.glb', escalaGLB: 4 }
 ];
 
 const planetasMallas = [];
 const materialOrbita = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.15 });
 
 datosPlanetas.forEach((datos) => {
-    // Generar línea de Órbita
     const curvaOrbita = new THREE.EllipseCurve(0, 0, datos.distancia, datos.distancia, 0, 2 * Math.PI, false, 0);
     const puntosOrbita = curvaOrbita.getPoints(100);
     const geoOrbita = new THREE.BufferGeometry().setFromPoints(puntosOrbita);
@@ -73,17 +98,20 @@ datosPlanetas.forEach((datos) => {
     lineaOrbita.rotation.x = Math.PI / 2;
     scene.add(lineaOrbita);
 
-    // Generar Planeta
     const pivote = new THREE.Object3D();
     scene.add(pivote);
 
     const geo = new THREE.SphereGeometry(datos.radio, 32, 32);
-    const mat = new THREE.MeshPhongMaterial({ color: datos.color, shininess: 10 });
+    // Si tiene modelo 3D, el material inicial será nuestra "Hitbox" (caja de colisión para clics)
+    const mat = new THREE.MeshPhongMaterial({ color: datos.color });
     const malla = new THREE.Mesh(geo, mat);
     malla.position.set(datos.distancia, 0, 0);
     malla.name = datos.nombre;
     pivote.add(malla);
     
+    // Cargar GLB si existe
+    if (datos.rutaGLB) cargarGLB(datos.rutaGLB, datos.escalaGLB, malla);
+
     objetosInteractivos.push(malla);
     crearEtiquetaHTML(datos.nombre, malla);
 
@@ -96,13 +124,18 @@ datosPlanetas.forEach((datos) => {
             const lunaMat = new THREE.MeshPhongMaterial({ color: lunaDatos.color });
             const lunaMalla = new THREE.Mesh(lunaGeo, lunaMat);
             lunaMalla.position.set(lunaDatos.distancia, 0, 0);
+            lunaMalla.name = lunaDatos.nombre; // Para poder clicar
             lunaPivote.add(lunaMalla);
+            
+            if (lunaDatos.rutaGLB) cargarGLB(lunaDatos.rutaGLB, lunaDatos.escalaGLB, lunaMalla);
+
             crearEtiquetaHTML(lunaDatos.nombre, lunaMalla);
+            objetosInteractivos.push(lunaMalla);
             lunasMallas.push({ pivote: lunaPivote, velocidad: lunaDatos.velocidad });
         });
     }
 
-    if (datos.tieneAnillos) {
+    if (datos.tieneAnillos && !datos.rutaGLB) { // Solo añadir anillos manuales si no trae modelo GLB propio
         const anilloGeo = new THREE.RingGeometry(datos.radio + 10, datos.radio + 35, 32);
         const anilloMat = new THREE.MeshBasicMaterial({ color: 0xa68553, side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
         const anillo = new THREE.Mesh(anilloGeo, anilloMat);
@@ -113,40 +146,33 @@ datosPlanetas.forEach((datos) => {
     planetasMallas.push({ pivote: pivote, malla: malla, velocidad: datos.velocidad, lunasMallas: lunasMallas });
 });
 
-// Cinturón de Asteroides (Entre Marte y Júpiter: distancias ~950 a 1150)
+// Cinturón de Asteroides 
 const astGeo = new THREE.BufferGeometry();
 const astMat = new THREE.PointsMaterial({ color: 0x999999, size: 1.5, sizeAttenuation: true });
 const astVertices = [];
 for (let i = 0; i < 4000; i++) {
     const radioCinturon = 950 + (Math.random() * 200);
     const theta = Math.random() * Math.PI * 2;
-    const yDisp = (Math.random() - 0.5) * 40; // Dispersión vertical
+    const yDisp = (Math.random() - 0.5) * 40; 
     astVertices.push(radioCinturon * Math.cos(theta), yDisp, radioCinturon * Math.sin(theta));
 }
 astGeo.setAttribute('position', new THREE.Float32BufferAttribute(astVertices, 3));
-const cinturonAsteroides = new THREE.Points(astGeo, astMat);
-scene.add(cinturonAsteroides);
+scene.add(new THREE.Points(astGeo, astMat));
 
-// Voyager 1 y 2
+// ==========================================
+// 3. VOYAGER 1, 2 Y ALFA CENTAURI (Nuevas Físicas)
+// ==========================================
 function crearSonda(nombre, xPos, zPos) {
     const sondaGroup = new THREE.Group();
-    // Cuerpo y Antena básica
-    const cuerpoGeo = new THREE.BoxGeometry(4, 4, 4);
-    const cuerpoMat = new THREE.MeshPhongMaterial({ color: 0xcccccc });
-    sondaGroup.add(new THREE.Mesh(cuerpoGeo, cuerpoMat));
-    
-    const platoGeo = new THREE.CylinderGeometry(5, 0, 2, 16);
-    const platoMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
-    const plato = new THREE.Mesh(platoGeo, platoMat);
-    plato.rotation.x = Math.PI / 2;
-    plato.position.z = 3;
+    const cuerpo = new THREE.Mesh(new THREE.BoxGeometry(4, 4, 4), new THREE.MeshPhongMaterial({ color: 0xcccccc }));
+    sondaGroup.add(cuerpo);
+    const plato = new THREE.Mesh(new THREE.CylinderGeometry(5, 0, 2, 16), new THREE.MeshPhongMaterial({ color: 0xffffff }));
+    plato.rotation.x = Math.PI / 2; plato.position.z = 3;
     sondaGroup.add(plato);
-
     sondaGroup.position.set(xPos, 50, zPos);
     sondaGroup.name = nombre;
     scene.add(sondaGroup);
     
-    // Esfera invisible más grande para hacer clic fácilmente
     const hitBox = new THREE.Mesh(new THREE.SphereGeometry(20, 8, 8), new THREE.MeshBasicMaterial({visible: false}));
     hitBox.name = nombre;
     sondaGroup.add(hitBox);
@@ -155,20 +181,49 @@ function crearSonda(nombre, xPos, zPos) {
     crearEtiquetaHTML(nombre, sondaGroup);
     return sondaGroup;
 }
+
+// Las sondas ahora guardan vectores de velocidad para alejarse
 const voyager1 = crearSonda("Voyager 1", 3800, -1000);
+voyager1.userData.velocidad = new THREE.Vector3(0.5, 0.2, -0.6); // Dirección hacia Ophiuchus
+
 const voyager2 = crearSonda("Voyager 2", 3600, 1500);
+voyager2.userData.velocidad = new THREE.Vector3(-0.4, -0.3, 0.7);
 
-// ==========================================
-// 3. CONSTELACIONES Y ESTRELLAS
-// ==========================================
-const constelacionesGrupo = new THREE.Group();
-scene.add(constelacionesGrupo);
+// Sistema Alfa Centauri (Ubicado muy lejos)
+const alfaCentauriGrupo = new THREE.Group();
+// Posición: Z lejano simulando años luz de distancia
+alfaCentauriGrupo.position.set(15000, 5000, -25000); 
+alfaCentauriGrupo.name = "Alfa Centauri";
+scene.add(alfaCentauriGrupo);
 
+// Hitbox general para viajar al sistema
+const acHitBox = new THREE.Mesh(new THREE.SphereGeometry(500, 16, 16), new THREE.MeshBasicMaterial({visible: false}));
+acHitBox.name = "Alfa Centauri";
+alfaCentauriGrupo.add(acHitBox);
+objetosInteractivos.push(acHitBox);
+crearEtiquetaHTML("Sist. Alfa Centauri", alfaCentauriGrupo);
+
+// Estrella A
+const acAGeo = new THREE.SphereGeometry(140, 32, 32);
+const acAMat = new THREE.MeshBasicMaterial({ color: 0xfff4e8 }); // Amarilla/Blanca
+const acA = new THREE.Mesh(acAGeo, acAMat);
+acA.position.set(-300, 0, 0);
+alfaCentauriGrupo.add(acA);
+alfaCentauriGrupo.add(new THREE.PointLight(0xfff4e8, 1.5, 10000));
+
+// Estrella B
+const acBGeo = new THREE.SphereGeometry(100, 32, 32);
+const acBMat = new THREE.MeshBasicMaterial({ color: 0xffd2a1 }); // Naranja
+const acB = new THREE.Mesh(acBGeo, acBMat);
+acB.position.set(400, 0, 0);
+alfaCentauriGrupo.add(acB);
+
+// Constelaciones y Estrellas de fondo
 const starGeo = new THREE.BufferGeometry();
 const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 2, transparent: true, opacity: 0.4 });
 const starVertices = [];
 for (let i = 0; i < 20000; i++) {
-    const radius = 8000 + Math.random() * 15000;
+    const radius = 8000 + Math.random() * 40000; // Fondo expandido para que cubra viajes lejanos
     const theta = 2 * Math.PI * Math.random();
     const phi = Math.acos(2 * Math.random() - 1);
     starVertices.push(radius * Math.sin(phi) * Math.cos(theta), radius * Math.sin(phi) * Math.sin(theta), radius * Math.cos(phi));
@@ -185,7 +240,7 @@ function crearEtiquetaHTML(texto, objeto3D) {
 }
 
 // ==========================================
-// 4. NAVEGACIÓN Y CONTROLES
+// 4. NAVEGACIÓN Y CONTROLES (Con Inversión Y)
 // ==========================================
 const nave = new THREE.Object3D();
 nave.position.set(0, 400, 1200); 
@@ -199,14 +254,20 @@ camera.position.set(0, 0, 0);
 camera.rotation.order = 'YXZ';
 
 let configSensibilidadRat = 0.003;
-let configSensibilidadJoy = 12; // Nuevo multiplicador para el joystick
+let configSensibilidadJoy = 12; 
 let configAceleracion = 0.15;
+let invertirEjeY = false; // Variable global para la nueva opción
 let velocidad = 0;
 let menuAbierto = false; 
 
 const raycaster = new THREE.Raycaster();
 const raton = new THREE.Vector2();
 let objetivoViaje = null;
+
+// Ligar el checkbox de invertir controles a la variable
+document.getElementById('invertir-eje-y').addEventListener('change', (e) => {
+    invertirEjeY = e.target.checked;
+});
 
 const pantallaInicio = document.getElementById('pantalla-inicio');
 if(pantallaInicio) {
@@ -225,7 +286,7 @@ document.getElementById('cerrar-info').addEventListener('click', () => {
 });
 
 function mostrarVentanaInfo(nombreAstro) {
-    const data = baseDeDatosAstros[nombreAstro] || { desc: "Objeto astronómico desconocido.", img: "https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg" };
+    const data = baseDeDatosAstros[nombreAstro] || { desc: "Objeto astronómico en exploración.", img: "https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg" };
     document.getElementById('info-titulo').innerText = nombreAstro;
     document.getElementById('info-desc').innerText = data.desc;
     document.getElementById('info-img').src = data.img;
@@ -238,7 +299,6 @@ let joyX = 0, joyY = 0;
 let touchActive = false;
 let btnAvanzarFijo = false, btnRetrocederFijo = false;
 
-// Joystick Analógico (Dirección)
 const joystickBase = document.getElementById('joystick-base');
 const joystickKnob = document.getElementById('joystick-knob');
 let joyOrigin = { x: 0, y: 0 };
@@ -273,7 +333,6 @@ function updateJoystick(touch) {
     joyX = dx / maxR; joyY = dy / maxR;
 }
 
-// Botones A/B (Aceleración)
 const btnAvanzarDOM = document.getElementById('btn-avanzar');
 const btnRetrocederDOM = document.getElementById('btn-retroceder');
 if(btnAvanzarDOM) {
@@ -283,7 +342,6 @@ if(btnAvanzarDOM) {
     btnRetrocederDOM.addEventListener('touchend', (e) => { e.preventDefault(); btnRetrocederFijo = false; });
 }
 
-// --- LÓGICA RATÓN/TECLADO ---
 let mouseX = 0, mouseY = 0;
 document.addEventListener('mousemove', (e) => {
     if (menuAbierto || touchActive) return; 
@@ -322,11 +380,13 @@ window.addEventListener('click', (e) => {
     if (intersecciones.length > 0) { 
         cancelarViaje(); 
         objetivoViaje = intersecciones[0].object; 
-        mostrarVentanaInfo(objetivoViaje.name);
+        
+        // Si clickeamos una HitBox hija (sondas, modelos GLB, lunas), el nombre puede estar en ella o en su padre
+        const nombreTarget = objetivoViaje.name || objetivoViaje.parent.name;
+        mostrarVentanaInfo(nombreTarget);
     }
 });
 
-// Menú y Tour
 document.getElementById('btn-opciones').addEventListener('click', toggleMenu);
 function toggleMenu() {
     menuAbierto = !menuAbierto;
@@ -352,7 +412,7 @@ function cancelarViaje() {
 }
 
 const listaTour = document.getElementById('lista-tour');
-const planetasTour = ['Sol', 'Mercurio', 'Venus', 'Tierra', 'Marte', 'Júpiter', 'Saturno', 'Urano', 'Neptuno', 'Plutón', 'Voyager 1', 'Voyager 2'];
+const planetasTour = ['Sol', 'Mercurio', 'Venus', 'Tierra', 'Marte', 'Júpiter', 'Saturno', 'Urano', 'Neptuno', 'Plutón', 'Alfa Centauri'];
 planetasTour.forEach(nombre => {
     const lbl = document.createElement('label'); lbl.style.cursor = 'pointer';
     lbl.innerHTML = `<input type="checkbox" value="${nombre}" class="tour-chk" checked> ${nombre}`;
@@ -370,8 +430,11 @@ function siguienteDestinoTour() {
     const activas = Array.from(document.querySelectorAll('.tour-chk')).filter(c => c.checked);
     if (activas.length === 0 || !tourActivo) { cancelarViaje(); return; }
     if (tourIndex >= activas.length) tourIndex = 0;
-    objetivoViaje = objetosInteractivos.find(obj => obj.name === activas[tourIndex].value);
-    if(objetivoViaje) mostrarVentanaInfo(objetivoViaje.name);
+    
+    // Buscar el objeto por nombre para el Tour
+    objetivoViaje = objetosInteractivos.find(obj => (obj.name === activas[tourIndex].value) || (obj.parent && obj.parent.name === activas[tourIndex].value));
+    
+    if(objetivoViaje) mostrarVentanaInfo(activas[tourIndex].value);
     contadorTour = 0;
 }
 
@@ -383,13 +446,23 @@ const tempV = new THREE.Vector3();
 function animate() {
     requestAnimationFrame(animate);
 
+    // Animación Planetas
     planetasMallas.forEach((p) => {
-        p.pivote.rotation.y += p.velocidad; p.malla.rotation.y += 0.01;         
+        p.pivote.rotation.y += p.velocidad; 
+        p.malla.rotation.y += 0.01;         
         p.lunasMallas.forEach(l => l.pivote.rotation.y += l.velocidad);
     });
     
-    cinturonAsteroides.rotation.y -= 0.0005;
+    // Animación Alfa Centauri (Estrellas orbitando un centro común)
+    alfaCentauriGrupo.rotation.y += 0.005;
+    acA.rotation.y += 0.01;
+    acB.rotation.y += 0.01;
 
+    // Físicas de las Sondas Voyager (se alejan continuamente)
+    voyager1.position.add(voyager1.userData.velocidad);
+    voyager2.position.add(voyager2.userData.velocidad);
+
+    // Etiquetas HTML
     listaEtiquetas.forEach(et => {
         if(et.esConstelacion) { et.div.style.display = 'none'; return; }
         tempV.setFromMatrixPosition(et.malla.matrixWorld);
@@ -413,15 +486,22 @@ function animate() {
             const posDest = new THREE.Vector3(); objetivoViaje.getWorldPosition(posDest);
             let radio = 10;
             if(objetivoViaje.geometry) radio = objetivoViaje.geometry.parameters.radius || 10;
-            const distSegura = Math.max(radio * 4, 30);
+            // Aumentar la distancia segura drásticamente si es Alfa Centauri para no chocar con las estrellas
+            const esEstrellaMasiva = (objetivoViaje.name === "Alfa Centauri" || objetivoViaje.name === "Sol");
+            const distSegura = esEstrellaMasiva ? Math.max(radio * 8, 800) : Math.max(radio * 4, 30);
+            
             const ideal = posDest.clone().add(new THREE.Vector3(distSegura, distSegura*0.3, distSegura));
             moverActivo.position.lerp(ideal, 0.04);
             moverActivo.lookAt(posDest);
         } else {
-            // Se utiliza la nueva sensibilidad del Joystick Digital
             let factorGiro = touchActive ? configSensibilidadJoy : 1;
+            
+            // LOGICA PARA INVERTIR EJE Y:
             let finalLookX = (joyX !== 0) ? joyX : mouseX;
             let finalLookY = (joyY !== 0) ? joyY : mouseY;
+            if (invertirEjeY) {
+                finalLookY = finalLookY * -1; // ¡Aquí ocurre la magia de inversión!
+            }
 
             moverActivo.rotation.y -= finalLookX * configSensibilidadRat * factorGiro;
             moverActivo.rotation.x += finalLookY * configSensibilidadRat * factorGiro;
@@ -449,6 +529,14 @@ function animate() {
                 camera.position.add(dirL);
             }
         }
+
+        // --- CÁLCULO DE AÑOS LUZ ---
+        // Simulación: Definimos que 1 Año Luz equivale a 8,000 unidades de distancia de Three.js en este mapa
+        const distanciaAlCentro = moverActivo.position.length();
+        const factorAñoLuz = 8000;
+        const añosLuz = (distanciaAlCentro / factorAñoLuz).toFixed(4);
+        document.getElementById('ui-distancia-al').innerText = añosLuz;
+
         document.getElementById('ui-coords').innerText = `X:${Math.round(moverActivo.position.x)} Y:${Math.round(moverActivo.position.y)} Z:${Math.round(moverActivo.position.z)}`;
     }
 
