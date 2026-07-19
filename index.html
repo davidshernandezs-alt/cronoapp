@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Factura Dra. Rosadelca</title>
+    <title>Factura Dra. Rosadelca - Firebase Edition</title>
     <style>
         /* ================================================== */
         /* PANEL DE CONTROL (NO SE IMPRIME) */
@@ -98,7 +98,7 @@
 </head>
 <body>
     <div class="ui-container">
-        <h2 class="ui-title">⚙️ Generador Definitivo - Control Total (Dra. Rosadelca)</h2>
+        <h2 class="ui-title">⚙️ Generador Definitivo - Control Total (Dra. Rosadelca) <span style="font-size:12px; color:green;">(Sincronizado con Nube)</span></h2>
         
         <div class="alert-box">
             <strong>¿No ves el fondo de la factura?</strong><br>
@@ -110,29 +110,29 @@
         
         <div class="form-grid">
             <div class="form-group"><label>Tasa BCV (Bs.):</label><input type="number" id="ui-tasa" value="45.50" step="0.01" oninput="sincronizarTextos()"></div>
-            <div class="form-group"><label>Fecha Emisión:</label><input type="text" id="ui-fecha" value="08/07/2026" oninput="sincronizarTextos()"></div>
+            <div class="form-group"><label>Fecha Emisión:</label><input type="text" id="ui-fecha" value="" oninput="sincronizarTextos()"></div>
         </div>
 
         <!-- ============================================== -->
-        <!-- NUEVO MÓDULO DE PACIENTES GUARDADOS -->
+        <!-- MÓDULO DE PACIENTES CONECTADO A FIREBASE -->
         <!-- ============================================== -->
         <div class="form-grid" style="grid-template-columns: 1fr; margin-bottom: 5px;">
             <div class="form-group" style="background: #e9ecef; padding: 15px; border-radius: 6px;">
-                <label style="color: #0056b3; font-size: 14px;">👥 Cargar Paciente Frecuente:</label>
+                <label style="color: #0056b3; font-size: 14px;">👥 Cargar Paciente Frecuente (Nube): <span id="status-nube" style="font-weight:normal; font-size:11px; color:#666;">Conectando...</span></label>
                 <div style="display: flex; gap: 10px;">
                     <select id="ui-select-paciente" onchange="seleccionarPaciente()">
                         <option value="">-- Escribir nuevo o seleccionar paciente --</option>
                     </select>
-                    <button class="btn-add-patient" onclick="guardarNuevoPaciente()">➕ Guardar Actual en Lista</button>
+                    <button class="btn-add-patient" id="btnGuardarNube">☁️ Guardar Actual en Nube</button>
                 </div>
             </div>
         </div>
 
         <div class="form-grid">
-            <div class="form-group"><label>Nombre del Paciente:</label><input type="text" id="ui-paciente" value="Daniel Francisco Aceituno" oninput="sincronizarTextos()"></div>
+            <div class="form-group"><label>Nombre del Paciente:</label><input type="text" id="ui-paciente" value="" oninput="sincronizarTextos()"></div>
             <div class="form-group" style="display: flex; gap: 10px;">
-                <div style="width: 60%;"><label>Cédula:</label><input type="text" id="ui-ci" value="C.I 6866036" oninput="sincronizarTextos()"></div>
-                <div style="width: 40%;"><label>Edad:</label><input type="text" id="ui-edad" value="60 años" oninput="sincronizarTextos()"></div>
+                <div style="width: 60%;"><label>Cédula:</label><input type="text" id="ui-ci" value="" oninput="sincronizarTextos()"></div>
+                <div style="width: 40%;"><label>Edad:</label><input type="text" id="ui-edad" value="" oninput="sincronizarTextos()"></div>
             </div>
         </div>
         <div class="form-grid">
@@ -158,7 +158,7 @@
         
         <!-- BOTONES LADO A LADO -->
         <div class="botones-container">
-            <button class="btn-save" onclick="guardarDatos()">💾 Guardar Factura Actual</button>
+            <button class="btn-save" onclick="guardarDatosLocales()">💾 Guardar Factura Actual</button>
             <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
         </div>
     </div>
@@ -186,6 +186,137 @@
         <div class="texto-flotante" id="pos-fecha"></div>
     </div>
 
+    <!-- SCRIPT DE FIREBASE TIPO MODULE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+        // Credenciales extraídas del proyecto proporcionado
+        const firebaseConfig = {
+            apiKey: "AIzaSyDmtI70sEjbB6k3tkgtVuSYHBclDh6tiLE",
+            authDomain: "mi-portal-84bd1.firebaseapp.com",
+            projectId: "mi-portal-84bd1",
+            storageBucket: "mi-portal-84bd1.firebasestorage.app",
+            messagingSenderId: "153791649699",
+            appId: "1:153791649699:web:a3db5d540b874168b1ec16",
+            measurementId: "G-23QLTK5ZGZ",
+            databaseURL: "https://mi-portal-84bd1-default-rtdb.firebaseio.com/"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Variables Globales
+        window.listaPacientes = [];
+
+        // Referencia a la colección exclusiva de pacientes de la doctora
+        const pacientesRef = ref(database, 'pacientes_dra');
+
+        // Escuchar cambios en la base de datos en tiempo real
+        onValue(pacientesRef, (snapshot) => {
+            const data = snapshot.val();
+            window.listaPacientes = [];
+            
+            if (data) {
+                // Convertir el objeto de Firebase a un array
+                for (let key in data) {
+                    window.listaPacientes.push({
+                        idFirebase: key,
+                        nombre: data[key].nombre,
+                        ci: data[key].ci,
+                        edad: data[key].edad
+                    });
+                }
+            }
+            
+            actualizarDropdown();
+            document.getElementById('status-nube').innerText = "🟢 Sincronizado";
+        }, (error) => {
+            console.error("Error al conectar con Firebase:", error);
+            document.getElementById('status-nube').innerText = "🔴 Error de conexión";
+        });
+
+        function actualizarDropdown() {
+            const select = document.getElementById('ui-select-paciente');
+            // Guardar la selección actual si existe
+            const valorActual = select.value;
+            
+            select.innerHTML = '<option value="">-- Escribir nuevo o seleccionar paciente --</option>';
+            
+            // Ordenar alfabéticamente por nombre
+            window.listaPacientes.sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+            window.listaPacientes.forEach((p, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.text = p.nombre;
+                select.appendChild(option);
+            });
+            
+            // Restaurar selección si aplica
+            if(valorActual && valorActual < window.listaPacientes.length) {
+                select.value = valorActual;
+            }
+        }
+
+        // Exponer funciones al scope global para que los botones HTML puedan usarlas
+        window.seleccionarPaciente = function() {
+            const index = document.getElementById('ui-select-paciente').value;
+            if (index !== "") {
+                const p = window.listaPacientes[index];
+                document.getElementById('ui-paciente').value = p.nombre;
+                document.getElementById('ui-ci').value = p.ci;
+                document.getElementById('ui-edad').value = p.edad;
+            } else {
+                document.getElementById('ui-paciente').value = "";
+                document.getElementById('ui-ci').value = "";
+                document.getElementById('ui-edad').value = "";
+            }
+            window.sincronizarTextos();
+        };
+
+        window.guardarNuevoPaciente = async function() {
+            const btn = document.getElementById('btnGuardarNube');
+            const nombre = document.getElementById('ui-paciente').value.trim();
+            const ci = document.getElementById('ui-ci').value.trim();
+            const edad = document.getElementById('ui-edad').value.trim();
+
+            if (!nombre) {
+                alert("⚠️ Debe escribir al menos el Nombre del paciente para poder guardarlo.");
+                return;
+            }
+
+            btn.innerText = "⏳ Guardando...";
+            btn.disabled = true;
+
+            try {
+                // Crear una clave única segura para Firebase (reemplaza espacios y caracteres raros)
+                const claveSegura = nombre.replace(/[\.#\$\/\[\]\s]/g, "_").toLowerCase();
+                
+                // Guardar en Firebase
+                await set(ref(database, 'pacientes_dra/' + claveSegura), {
+                    nombre: nombre,
+                    ci: ci,
+                    edad: edad,
+                    ultimaModificacion: new Date().toISOString()
+                });
+
+                alert("☁️ ✅ Paciente guardado/actualizado correctamente en la Nube.");
+            } catch (error) {
+                console.error("Error al guardar en Firebase:", error);
+                alert("Hubo un error al guardar en la nube.");
+            } finally {
+                btn.innerText = "☁️ Guardar Actual en Nube";
+                btn.disabled = false;
+            }
+        };
+
+        // Asignar evento al botón directamente por si el onclick falla
+        document.getElementById('btnGuardarNube').addEventListener('click', window.guardarNuevoPaciente);
+
+    </script>
+
+    <!-- SCRIPT DE INTERFAZ TRADICIONAL -->
     <script>
         // Cargar imagen manual
         document.getElementById('imageLoader').addEventListener('change', function(e){
@@ -198,9 +329,15 @@
             }
         });
 
+        // Setear fecha de hoy al cargar por defecto
+        if(!document.getElementById('ui-fecha').value){
+             const hoy = new Date();
+             document.getElementById('ui-fecha').value = hoy.toLocaleDateString('es-VE');
+        }
+
         function formatBs(n) { return 'Bs. ' + n.toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2}); }
         
-        function sincronizarTextos() {
+        window.sincronizarTextos = function() {
             const tasa = parseFloat(document.getElementById('ui-tasa').value) || 0;
             
             document.getElementById('pos-paciente').innerText = document.getElementById('ui-paciente').value;
@@ -212,7 +349,6 @@
 
             let totalBs = 0;
 
-            // Fila 1
             const cant1 = parseInt(document.getElementById('ui-cant-1').value) || 0;
             const precioUSD1 = parseFloat(document.getElementById('ui-precio-1').value) || 0;
             if (cant1 > 0 && precioUSD1 > 0) {
@@ -223,7 +359,6 @@
                 document.getElementById('pos-monto-1').innerText = '';
             }
 
-            // Fila 2
             const cant2 = parseInt(document.getElementById('ui-cant-2').value) || 0;
             const precioUSD2 = parseFloat(document.getElementById('ui-precio-2').value) || 0;
             if (cant2 > 0 && precioUSD2 > 0) {
@@ -236,92 +371,10 @@
 
             document.getElementById('pos-subtotal').innerText = formatBs(totalBs);
             document.getElementById('pos-total').innerText = formatBs(totalBs);
-        }
+        };
 
-        // ==========================================
-        // GESTIÓN DE PACIENTES FRECUENTES
-        // ==========================================
-        let listaPacientes = [];
-
-        function cargarListaPacientes() {
-            const pacientesGuardados = localStorage.getItem('listaPacientesDra');
-            if (pacientesGuardados) {
-                listaPacientes = JSON.parse(pacientesGuardados);
-            }
-            actualizarDropdown();
-        }
-
-        function actualizarDropdown() {
-            const select = document.getElementById('ui-select-paciente');
-            // Mantiene solo la primera opción por defecto
-            select.innerHTML = '<option value="">-- Escribir nuevo o seleccionar paciente --</option>';
-            
-            // Agrega los pacientes guardados a la lista
-            listaPacientes.forEach((p, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.text = p.nombre;
-                select.appendChild(option);
-            });
-        }
-
-        function seleccionarPaciente() {
-            const index = document.getElementById('ui-select-paciente').value;
-            if (index !== "") {
-                const p = listaPacientes[index];
-                document.getElementById('ui-paciente').value = p.nombre;
-                document.getElementById('ui-ci').value = p.ci;
-                document.getElementById('ui-edad').value = p.edad;
-                
-                // Actualiza visualmente la factura de inmediato
-                sincronizarTextos();
-            } else {
-                // Si eligen la opción vacía, limpia los campos para uno nuevo
-                document.getElementById('ui-paciente').value = "";
-                document.getElementById('ui-ci').value = "";
-                document.getElementById('ui-edad').value = "";
-                sincronizarTextos();
-            }
-        }
-
-        function guardarNuevoPaciente() {
-            const nombre = document.getElementById('ui-paciente').value.trim();
-            const ci = document.getElementById('ui-ci').value.trim();
-            const edad = document.getElementById('ui-edad').value.trim();
-
-            if (!nombre) {
-                alert("⚠️ Debe escribir al menos el Nombre del paciente para poder guardarlo.");
-                return;
-            }
-
-            // Verifica si el paciente ya existe en la lista (sin importar mayúsculas)
-            const indexExistente = listaPacientes.findIndex(p => p.nombre.toLowerCase() === nombre.toLowerCase());
-            
-            if (indexExistente >= 0) {
-                // Si ya existe, simplemente actualiza su cédula y edad
-                listaPacientes[indexExistente] = { nombre, ci, edad };
-                alert("✅ Paciente actualizado en la lista.");
-            } else {
-                // Si no existe, lo agrega al final de la lista
-                listaPacientes.push({ nombre, ci, edad });
-                alert("✅ Nuevo paciente guardado en la lista.");
-            }
-
-            // Guarda la nueva lista en la memoria del navegador
-            localStorage.setItem('listaPacientesDra', JSON.stringify(listaPacientes));
-            
-            // Refresca el selector para mostrar el nuevo nombre
-            actualizarDropdown();
-            
-            // Deja seleccionado al paciente recién guardado
-            const select = document.getElementById('ui-select-paciente');
-            select.value = indexExistente >= 0 ? indexExistente : listaPacientes.length - 1;
-        }
-
-        // ==========================================
-        // FUNCIONES DE GUARDADO DE LA FACTURA
-        // ==========================================
-        function guardarDatos() {
+        // Guardado local SOLO para el estado del formulario (Tasa, fechas, etc)
+        window.guardarDatosLocales = function() {
             const datos = {
                 tasa: document.getElementById('ui-tasa').value,
                 fecha: document.getElementById('ui-fecha').value,
@@ -338,19 +391,14 @@
             
             localStorage.setItem('datosFacturaDra', JSON.stringify(datos));
             alert('✅ ¡Datos de la factura actual guardados exitosamente!');
-        }
+        };
 
-        function cargarDatos() {
+        window.cargarDatosLocales = function() {
             const datosGuardados = localStorage.getItem('datosFacturaDra');
-            
             if (datosGuardados) {
                 const datos = JSON.parse(datosGuardados);
-                
                 if(datos.tasa) document.getElementById('ui-tasa').value = datos.tasa;
                 if(datos.fecha) document.getElementById('ui-fecha').value = datos.fecha;
-                if(datos.paciente) document.getElementById('ui-paciente').value = datos.paciente;
-                if(datos.ci) document.getElementById('ui-ci').value = datos.ci;
-                if(datos.edad) document.getElementById('ui-edad').value = datos.edad;
                 if(datos.diagnostico) document.getElementById('ui-diagnostico').value = datos.diagnostico;
                 if(datos.procedimiento) document.getElementById('ui-procedimiento').value = datos.procedimiento;
                 if(datos.cant1) document.getElementById('ui-cant-1').value = datos.cant1;
@@ -358,13 +406,11 @@
                 if(datos.cant2) document.getElementById('ui-cant-2').value = datos.cant2;
                 if(datos.precio2) document.getElementById('ui-precio-2').value = datos.precio2;
             }
-            sincronizarTextos();
-        }
-        
-        // Al cargar la página, carga los pacientes, los datos anteriores y sincroniza la vista
+            window.sincronizarTextos();
+        };
+
         window.onload = function() {
-            cargarListaPacientes();
-            cargarDatos();
+            window.cargarDatosLocales();
         };
     </script>
 </body>
