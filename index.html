@@ -1,4 +1,15 @@
 <!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>factura</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -59,7 +70,6 @@
 
         /* Datos del Encabezado */
         #pos-paciente      { top: 250px; left: 240px; }
-        /* Cédula y edad separados y movidos a la izquierda */
         #pos-ci            { top: 250px; left: 520px; } 
         #pos-edad          { top: 250px; left: 660px; } 
 
@@ -67,21 +77,21 @@
         #pos-procedimiento { top: 312px; left: 240px; }
 
         /* Fila 1: Admisión y Evaluación */
-        #pos-cant-1   { top: 372px; left: 470px; text-align: center; width: 40px; }
-        #pos-precio-1 { top: 372px; left: 520px; text-align: right; width: 80px; }
-        #pos-monto-1  { top: 372px; left: 615px; text-align: left; width: 150px; } /* Movido a la izquierda (left en vez de right) */
+        #pos-cant-1   { top: 372px; left: 450px; text-align: center; width: 40px; }
+        #pos-precio-1 { top: 372px; left: 490px; text-align: right; width: 90px; } /* Ajustado a la izquierda */
+        #pos-monto-1  { top: 372px; left: 650px; text-align: left; width: 150px; } /* Ajustado a la izquierda */
 
-        /* Fila 2: Consumos y Servicios (LETRA ROJA y en su línea Fuxia) */
-        #pos-cant-2   { top: 412px; left: 470px; text-align: center; width: 40px; color: #dc3545; }
-        #pos-precio-2 { top: 412px; left: 520px; text-align: right; width: 80px; color: #dc3545; }
-        #pos-monto-2  { top: 412px; left: 615px; text-align: left; width: 150px; color: #dc3545; }
+        /* Fila 2: Consumos y Servicios (LETRA ROJA) */
+        #pos-cant-2   { top: 412px; left: 450px; text-align: center; width: 40px;}
+        #pos-precio-2 { top: 412px; left: 490px; text-align: right; width: 90px; } /* Rodado a la izquierda y más ancho para no superponer */
+        #pos-monto-2  { top: 412px; left: 650px; text-align: left; width: 150px; } /* Alineado con todo a la izquierda */
 
         /* Totales y Fecha */
-        #pos-subtotal { top: 545px; left: 615px; text-align: left; width: 150px; font-size: 11pt; }
-        #pos-total    { top: 598px; left: 615px; text-align: left; width: 150px; font-size: 11pt; }
+        #pos-subtotal { top: 567px; left: 650px; text-align: left; width: 150px; font-size: 11pt; } /* Más abajo */
+        #pos-total    { top: 625px; left: 650px; text-align: left; width: 150px; font-size: 11pt; } /* Más abajo */
         
         /* Fecha al lado de la palabra Fecha */
-        #pos-fecha    { top: 685px; left: 650px; text-align: left; width: 150px; font-size: 11pt; }
+        #pos-fecha    { top: 710px; left: 700px; text-align: left; width: 150px; font-size: 10pt; } /* Más abajo, en la línea fucsia */
 
         @media print {
             body { background: transparent; padding: 0; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -128,7 +138,7 @@
             </div>
         </div>
         <div class="form-grid" style="align-items: end;">
-            <div class="form-group"><label style="color:#dc3545;">Concepto 2 (Consumos - Línea Roja):</label><input type="text" value="* CONSUMOS Y SERVICIOS..." readonly style="background:#f5f5f5; color:#777; border:none;"></div>
+            <div class="form-group"><label style="color:#dc3545;">Concepto 2 (Consumos - Línea azul):</label><input type="text" value="* CONSUMOS Y SERVICIOS..." readonly style="background:#f5f5f5; color:#777; border:none;"></div>
             <div class="form-group" style="display:flex; gap:10px;">
                 <div style="width:30%"><label>Cant:</label><input type="number" id="ui-cant-2" value="1" oninput="sincronizarTextos()"></div>
                 <div style="width:70%"><label>Precio ($):</label><input type="number" id="ui-precio-2" value="8595.00" step="0.01" oninput="sincronizarTextos()"></div>
@@ -224,4 +234,8 @@
         window.onload = sincronizarTextos;
     </script>
 </body>
+</html>
+    
+  </body>
+  
 </html>
