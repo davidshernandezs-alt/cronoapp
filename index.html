@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <title>Factura Dra. Rosadelca</title>
     <style>
-        /* ================================================== */
-        /* PANEL DE CONTROL (NO SE IMPRIME) */
-        /* ================================================== */
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #eef2f5; padding: 20px; color: #333; margin: 0; }
         .ui-container { max-width: 900px; margin: 0 auto 30px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 5px solid #0056b3; }
         .ui-title { color: #0056b3; margin-bottom: 20px; font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
@@ -16,9 +13,6 @@
         .btn-print { background: #28a745; color: white; border: none; padding: 12px 24px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 15px; font-size: 16px; }
         .btn-print:hover { background: #218838; }
 
-        /* ================================================== */
-        /* ÁREA DE LA FACTURA (PLANTILLA EXACTA TAMAÑO CARTA) */
-        /* ================================================== */
         .hoja-factura {
             width: 8.5in; 
             height: 11in; 
@@ -33,38 +27,33 @@
             color: #333;
         }
 
-        /* IMAGEN BASE 64 COMO FONDO (SOLUCIÓN FINAL) */
         .imagen-fondo-real {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 0; 
+            z-index: 1; 
             pointer-events: none; 
         }
 
-        .texto-flotante, .items-container { z-index: 10; }
-        .texto-flotante { position: absolute; font-weight: bold; color: #4f6486; }
+        .texto-flotante, .items-container { z-index: 10; position: absolute; font-weight: bold; color: #4f6486; }
 
-        /* Datos del Paciente */
         #pos-paciente { top: 235px; left: 240px; }
         #pos-ci       { top: 235px; right: 100px; }
         #pos-diagnostico { top: 278px; left: 240px; font-weight: normal; }
         #pos-procedimiento { top: 300px; left: 240px; }
 
-        /* Contenedor Dinámico de Conceptos */
-        .items-container { position: absolute; top: 360px; left: 50px; width: 700px; }
+        .items-container { top: 360px; left: 50px; width: 700px; }
         .item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; font-weight: bold; font-size: 9.5pt; color: #4f6486; }
         .item-row.negro { color: #333; }
         .item-desc { width: 60%; padding-left: 20px;} 
         .item-cant { width: 10%; text-align: center; }
         .item-monto { width: 25%; text-align: right; }
 
-        /* Totales y Fecha */
-        #pos-subtotal { position: absolute; top: 540px; right: 100px; font-weight: bold; font-size: 10pt; color: #4f6486;}
-        #pos-total    { position: absolute; top: 600px; right: 100px; font-weight: bold; font-size: 10pt; color: #4f6486;}
-        #pos-fecha    { position: absolute; bottom: 310px; right: 80px; font-weight: bold; font-size: 9.5pt; color: #4f6486;}
+        #pos-subtotal { top: 540px; right: 100px; font-size: 10pt;}
+        #pos-total    { top: 600px; right: 100px; font-size: 10pt;}
+        #pos-fecha    { bottom: 310px; right: 80px; font-size: 9.5pt;}
 
         @media print {
             body { background: transparent; padding: 0; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -77,8 +66,11 @@
 <body>
     <div class="ui-container">
         <h2 class="ui-title">⚙️ Generador Definitivo (Dra. Rosadelca)</h2>
-        <div style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-size: 13px;">
-            <strong>¡ÉXITO ABSOLUTO!</strong> La imagen ha sido incrustada directamente <b>dentro de este código HTML</b>. Ya no dependes de la carpeta ni del nombre del archivo. Funciona al 100%.
+        <div style="background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-size: 13px;">
+            <strong>¡MUY IMPORTANTE!</strong> Para que el fondo se vea correctamente:<br>
+            1. Crea una carpeta nueva (por ejemplo, en tu Escritorio).<br>
+            2. Guarda este archivo HTML y la imagen de tu factura <b>dentro de esa misma carpeta</b>.<br>
+            3. Asegúrate de que la imagen se llame <b>fondo.jpg</b> o <b>fondo.png</b>.
         </div>
         
         <div class="form-grid">
@@ -110,11 +102,12 @@
             </div>
         </div>
         <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
-        <p style="font-size: 12px; color: #d9534f; text-align: center; margin-top:10px;"><strong>Recuerda:</strong> En la ventana de impresión, marca "Gráficos de fondo" en 'Más ajustes'.</p>
     </div>
 
     <div class="hoja-factura">
-        <img src="data:image/jpeg;base64," class="imagen-fondo-real" alt="Fondo Factura">
+        <!-- Truco: Intenta cargar fondo.jpg, si falla intenta fondo.png, si falla muestra un error visual -->
+        <img src="fondo.jpg" class="imagen-fondo-real" alt="Fondo Factura" onerror="if(this.src.includes('fondo.jpg')){this.src='fondo.png';}else{this.style.display='none'; alert('Atención: El archivo HTML no encuentra la imagen. Por favor verifica que la imagen se llame fondo.jpg o fondo.png y esté guardada en la misma carpeta que este archivo HTML.');}">
+        
         <div class="texto-flotante" id="pos-paciente"></div>
         <div class="texto-flotante" id="pos-ci"></div>
         <div class="texto-flotante" id="pos-diagnostico"></div>
