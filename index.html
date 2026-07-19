@@ -15,6 +15,9 @@
         .form-group input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         .btn-print { background: #28a745; color: white; border: none; padding: 12px 24px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 15px; font-size: 16px; }
         .btn-print:hover { background: #218838; }
+        
+        .alert-box { background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 15px; border-radius: 4px; margin-bottom: 20px; font-size: 14px; }
+        .upload-btn { background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; }
 
         /* ================================================== */
         /* ÁREA DE LA FACTURA (TAMAÑO CARTA EXACTO) */
@@ -29,7 +32,7 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.2);
             overflow: hidden;
             font-family: Arial, sans-serif; 
-            font-size: 10pt;
+            font-size: 10.5pt;
             color: #333;
         }
 
@@ -44,36 +47,41 @@
         }
 
         /* ================================================== */
-        /* COORDENADAS EXACTAS Y PROTECCIÓN DE AMONTONAMIENTO */
+        /* COORDENADAS EXACTAS Y PROTECCIÓN */
         /* ================================================== */
         .texto-flotante {
             position: absolute; 
             font-weight: bold; 
             color: #4f6486; 
             z-index: 10;
-            white-space: nowrap; /* SOLUCIÓN: Evita que el texto se parta en dos líneas y se amontone */
+            white-space: nowrap; 
         }
 
         /* Datos del Encabezado */
-        #pos-paciente      { top: 243px; left: 240px; }
-        #pos-ci            { top: 243px; left: 600px; }
-        #pos-diagnostico   { top: 285px; left: 240px; font-weight: normal; }
-        #pos-procedimiento { top: 308px; left: 240px; }
+        #pos-paciente      { top: 250px; left: 240px; }
+        /* Cédula y edad separados y movidos a la izquierda */
+        #pos-ci            { top: 250px; left: 520px; } 
+        #pos-edad          { top: 250px; left: 660px; } 
+
+        #pos-diagnostico   { top: 290px; left: 240px; font-weight: normal; }
+        #pos-procedimiento { top: 312px; left: 240px; }
 
         /* Fila 1: Admisión y Evaluación */
-        #pos-cant-1   { top: 385px; left: 490px; text-align: center; width: 40px; }
-        #pos-precio-1 { top: 385px; left: 540px; text-align: right; width: 120px; }
-        #pos-monto-1  { top: 385px; right: 85px; text-align: right; width: 150px; }
+        #pos-cant-1   { top: 372px; left: 470px; text-align: center; width: 40px; }
+        #pos-precio-1 { top: 372px; left: 520px; text-align: right; width: 80px; }
+        #pos-monto-1  { top: 372px; left: 615px; text-align: left; width: 150px; } /* Movido a la izquierda (left en vez de right) */
 
-        /* Fila 2: Consumos y Servicios */
-        #pos-cant-2   { top: 455px; left: 490px; text-align: center; width: 40px; }
-        #pos-precio-2 { top: 455px; left: 540px; text-align: right; width: 120px; }
-        #pos-monto-2  { top: 455px; right: 85px; text-align: right; width: 150px; }
+        /* Fila 2: Consumos y Servicios (LETRA ROJA y en su línea Fuxia) */
+        #pos-cant-2   { top: 412px; left: 470px; text-align: center; width: 40px; color: #dc3545; }
+        #pos-precio-2 { top: 412px; left: 520px; text-align: right; width: 80px; color: #dc3545; }
+        #pos-monto-2  { top: 412px; left: 615px; text-align: left; width: 150px; color: #dc3545; }
 
-        /* Totales y Fecha (Alineados exactamente con la columna de montos) */
-        #pos-subtotal { top: 552px; right: 85px; text-align: right; width: 150px; font-size: 10.5pt; }
-        #pos-total    { top: 615px; right: 85px; text-align: right; width: 150px; font-size: 10.5pt; }
-        #pos-fecha    { top: 692px; right: 85px; text-align: right; width: 150px; font-size: 10.5pt; }
+        /* Totales y Fecha */
+        #pos-subtotal { top: 545px; left: 615px; text-align: left; width: 150px; font-size: 11pt; }
+        #pos-total    { top: 598px; left: 615px; text-align: left; width: 150px; font-size: 11pt; }
+        
+        /* Fecha al lado de la palabra Fecha */
+        #pos-fecha    { top: 685px; left: 650px; text-align: left; width: 150px; font-size: 11pt; }
 
         @media print {
             body { background: transparent; padding: 0; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -85,9 +93,14 @@
 </head>
 <body>
     <div class="ui-container">
-        <h2 class="ui-title">⚙️ Generador Final (Dra. Rosadelca)</h2>
-        <div style="background-color: #cce5ff; border: 1px solid #b8daff; color: #004085; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-size: 13px;">
-            <strong>Ajustes realizados:</strong> Los números ya no se amontonarán (se amplió el espacio) y la imagen buscará automáticamente el archivo <b>fondo.jpg</b> o <b>fondo.png</b> que tengas en la misma carpeta.
+        <h2 class="ui-title">⚙️ Generador Definitivo - Control Total (Dra. Rosadelca)</h2>
+        
+        <div class="alert-box">
+            <strong>¿No ves el fondo de la factura?</strong><br>
+            Haz clic en el botón de abajo y selecciona tu archivo <b>fondo_4.jpg</b> desde tu computadora. Así garantizamos que SIEMPRE se vea, sin importar dónde guardes el archivo.
+            <br>
+            <input type="file" id="imageLoader" accept="image/*" style="display:none;">
+            <button class="upload-btn" onclick="document.getElementById('imageLoader').click();">🖼️ Cargar Imagen de Fondo Manualmente</button>
         </div>
         
         <div class="form-grid">
@@ -96,7 +109,10 @@
         </div>
         <div class="form-grid">
             <div class="form-group"><label>Nombre del Paciente:</label><input type="text" id="ui-paciente" value="Daniel Francisco Aceituno" oninput="sincronizarTextos()"></div>
-            <div class="form-group"><label>Cédula y Edad:</label><input type="text" id="ui-ci" value="C.I 6866036 60 años" oninput="sincronizarTextos()"></div>
+            <div class="form-group" style="display: flex; gap: 10px;">
+                <div style="width: 60%;"><label>Cédula:</label><input type="text" id="ui-ci" value="C.I 6866036" oninput="sincronizarTextos()"></div>
+                <div style="width: 40%;"><label>Edad:</label><input type="text" id="ui-edad" value="60 años" oninput="sincronizarTextos()"></div>
+            </div>
         </div>
         <div class="form-grid">
             <div class="form-group"><label>Diagnóstico:</label><input type="text" id="ui-diagnostico" value="" placeholder="Ej: Adenocarcinoma..." oninput="sincronizarTextos()"></div>
@@ -112,7 +128,7 @@
             </div>
         </div>
         <div class="form-grid" style="align-items: end;">
-            <div class="form-group"><label>Concepto 2 (Consumos):</label><input type="text" value="* CONSUMOS Y SERVICIOS..." readonly style="background:#f5f5f5; color:#777; border:none;"></div>
+            <div class="form-group"><label style="color:#dc3545;">Concepto 2 (Consumos - Línea Roja):</label><input type="text" value="* CONSUMOS Y SERVICIOS..." readonly style="background:#f5f5f5; color:#777; border:none;"></div>
             <div class="form-group" style="display:flex; gap:10px;">
                 <div style="width:30%"><label>Cant:</label><input type="number" id="ui-cant-2" value="1" oninput="sincronizarTextos()"></div>
                 <div style="width:70%"><label>Precio ($):</label><input type="number" id="ui-precio-2" value="8595.00" step="0.01" oninput="sincronizarTextos()"></div>
@@ -123,11 +139,12 @@
 
     <!-- ÁREA DE LA FACTURA -->
     <div class="hoja-factura">
-        <!-- Carga de imagen local segura -->
-        <img src="fondo.jpg" class="imagen-fondo-real" alt="Fondo" onerror="if(!this.src.includes('fondo.png')){this.src='fondo.png';}">
+        <!-- Carga automática intentará buscar fondo_4.jpg en la carpeta -->
+        <img id="bg-img" src="fondo_4.jpg" class="imagen-fondo-real" alt="Fondo" onerror="if(!this.src.includes('fondo.jpg')){this.src='fondo.jpg';}">
         
         <div class="texto-flotante" id="pos-paciente"></div>
         <div class="texto-flotante" id="pos-ci"></div>
+        <div class="texto-flotante" id="pos-edad"></div>
         <div class="texto-flotante" id="pos-diagnostico"></div>
         <div class="texto-flotante" id="pos-procedimiento"></div>
         
@@ -145,6 +162,17 @@
     </div>
 
     <script>
+        // Lógica para cargar imagen local manualmente si falla la carga automática
+        document.getElementById('imageLoader').addEventListener('change', function(e){
+            var reader = new FileReader();
+            reader.onload = function(event){
+                document.getElementById('bg-img').src = event.target.result;
+            }
+            if(e.target.files[0]) {
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
         function formatBs(n) { return 'Bs. ' + n.toLocaleString('es-VE', {minimumFractionDigits:2, maximumFractionDigits:2}); }
         
         function sincronizarTextos() {
@@ -152,6 +180,7 @@
             
             document.getElementById('pos-paciente').innerText = document.getElementById('ui-paciente').value;
             document.getElementById('pos-ci').innerText = document.getElementById('ui-ci').value;
+            document.getElementById('pos-edad').innerText = document.getElementById('ui-edad').value;
             document.getElementById('pos-diagnostico').innerText = document.getElementById('ui-diagnostico').value;
             document.getElementById('pos-procedimiento').innerText = document.getElementById('ui-procedimiento').value;
             document.getElementById('pos-fecha').innerText = document.getElementById('ui-fecha').value;
