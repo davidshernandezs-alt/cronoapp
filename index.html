@@ -44,13 +44,14 @@
         }
 
         /* ================================================== */
-        /* COORDENADAS EXACTAS - AJUSTE MILIMÉTRICO FINAL */
+        /* COORDENADAS EXACTAS Y PROTECCIÓN DE AMONTONAMIENTO */
         /* ================================================== */
         .texto-flotante {
             position: absolute; 
             font-weight: bold; 
             color: #4f6486; 
             z-index: 10;
+            white-space: nowrap; /* SOLUCIÓN: Evita que el texto se parta en dos líneas y se amontone */
         }
 
         /* Datos del Encabezado */
@@ -59,23 +60,19 @@
         #pos-diagnostico   { top: 285px; left: 240px; font-weight: normal; }
         #pos-procedimiento { top: 308px; left: 240px; }
 
-        /* Fila 1: Admisión y Evaluación (Bajado a la franja gris) */
-        #pos-cant-1   { top: 385px; left: 510px; text-align: center; width: 30px; }
-        #pos-precio-1 { top: 385px; left: 580px; text-align: right; width: 80px; }
-        #pos-monto-1  { top: 385px; right: 85px; text-align: right; width: 120px; }
+        /* Fila 1: Admisión y Evaluación */
+        #pos-cant-1   { top: 385px; left: 490px; text-align: center; width: 40px; }
+        #pos-precio-1 { top: 385px; left: 540px; text-align: right; width: 120px; }
+        #pos-monto-1  { top: 385px; right: 85px; text-align: right; width: 150px; }
 
-        /* Fila 2: Consumos y Servicios (Bajado a la franja gris) */
-        #pos-cant-2   { top: 455px; left: 510px; text-align: center; width: 30px; }
-        #pos-precio-2 { top: 455px; left: 580px; text-align: right; width: 80px; }
-        #pos-monto-2  { top: 455px; right: 85px; text-align: right; width: 120px; }
+        /* Fila 2: Consumos y Servicios */
+        #pos-cant-2   { top: 455px; left: 490px; text-align: center; width: 40px; }
+        #pos-precio-2 { top: 455px; left: 540px; text-align: right; width: 120px; }
+        #pos-monto-2  { top: 455px; right: 85px; text-align: right; width: 150px; }
 
-        /* Subtotal (Alineado con el círculo verde) */
+        /* Totales y Fecha (Alineados exactamente con la columna de montos) */
         #pos-subtotal { top: 552px; right: 85px; text-align: right; width: 150px; font-size: 10.5pt; }
-        
-        /* Total Presupuesto (Alineado con la línea fuxia) */
         #pos-total    { top: 615px; right: 85px; text-align: right; width: 150px; font-size: 10.5pt; }
-        
-        /* Fecha (Alineado horizontalmente con la palabra "Fecha" amarilla) */
         #pos-fecha    { top: 692px; right: 85px; text-align: right; width: 150px; font-size: 10.5pt; }
 
         @media print {
@@ -88,13 +85,9 @@
 </head>
 <body>
     <div class="ui-container">
-        <h2 class="ui-title">⚙️ Generador Calibrado a la Perfección (Dra. Rosadelca)</h2>
-        <div style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-size: 13px;">
-            <strong>¡Ajuste al Milímetro Completado!</strong><br>
-            ✔️ Fecha alineada con el texto amarillo.<br>
-            ✔️ Total bajado a la línea fuxia.<br>
-            ✔️ Subtotal en la zona verde.<br>
-            ✔️ Montos posicionados en la franja gris.
+        <h2 class="ui-title">⚙️ Generador Final (Dra. Rosadelca)</h2>
+        <div style="background-color: #cce5ff; border: 1px solid #b8daff; color: #004085; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-size: 13px;">
+            <strong>Ajustes realizados:</strong> Los números ya no se amontonarán (se amplió el espacio) y la imagen buscará automáticamente el archivo <b>fondo.jpg</b> o <b>fondo.png</b> que tengas en la misma carpeta.
         </div>
         
         <div class="form-grid">
@@ -130,25 +123,22 @@
 
     <!-- ÁREA DE LA FACTURA -->
     <div class="hoja-factura">
-        <img src="data:image/jpeg;base64," class="imagen-fondo-real" alt="Fondo Factura">
+        <!-- Carga de imagen local segura -->
+        <img src="fondo.jpg" class="imagen-fondo-real" alt="Fondo" onerror="if(!this.src.includes('fondo.png')){this.src='fondo.png';}">
         
-        <!-- Textos Flotantes Independientes -->
         <div class="texto-flotante" id="pos-paciente"></div>
         <div class="texto-flotante" id="pos-ci"></div>
         <div class="texto-flotante" id="pos-diagnostico"></div>
         <div class="texto-flotante" id="pos-procedimiento"></div>
         
-        <!-- Fila 1 -->
         <div class="texto-flotante" id="pos-cant-1"></div>
         <div class="texto-flotante" id="pos-precio-1"></div>
         <div class="texto-flotante" id="pos-monto-1"></div>
 
-        <!-- Fila 2 -->
         <div class="texto-flotante" id="pos-cant-2"></div>
         <div class="texto-flotante" id="pos-precio-2"></div>
         <div class="texto-flotante" id="pos-monto-2"></div>
 
-        <!-- Totales -->
         <div class="texto-flotante" id="pos-subtotal"></div>
         <div class="texto-flotante" id="pos-total"></div>
         <div class="texto-flotante" id="pos-fecha"></div>
@@ -160,7 +150,6 @@
         function sincronizarTextos() {
             const tasa = parseFloat(document.getElementById('ui-tasa').value) || 0;
             
-            // Encabezado
             document.getElementById('pos-paciente').innerText = document.getElementById('ui-paciente').value;
             document.getElementById('pos-ci').innerText = document.getElementById('ui-ci').value;
             document.getElementById('pos-diagnostico').innerText = document.getElementById('ui-diagnostico').value;
@@ -169,13 +158,12 @@
 
             let totalBs = 0;
 
-            // Procesar Fila 1 (Admisión)
+            // Fila 1
             const cant1 = parseInt(document.getElementById('ui-cant-1').value) || 0;
             const precioUSD1 = parseFloat(document.getElementById('ui-precio-1').value) || 0;
             if (cant1 > 0 && precioUSD1 > 0) {
                 const montoBs1 = cant1 * precioUSD1 * tasa;
                 totalBs += montoBs1;
-                // Si quieres que se vea la cantidad y precio en la fila 1 quita los // de abajo:
                 // document.getElementById('pos-cant-1').innerText = cant1;
                 // document.getElementById('pos-precio-1').innerText = formatBs(precioUSD1 * tasa);
                 document.getElementById('pos-monto-1').innerText = formatBs(montoBs1);
@@ -185,7 +173,7 @@
                 document.getElementById('pos-monto-1').innerText = '';
             }
 
-            // Procesar Fila 2 (Consumos)
+            // Fila 2
             const cant2 = parseInt(document.getElementById('ui-cant-2').value) || 0;
             const precioUSD2 = parseFloat(document.getElementById('ui-precio-2').value) || 0;
             if (cant2 > 0 && precioUSD2 > 0) {
@@ -200,12 +188,10 @@
                 document.getElementById('pos-monto-2').innerText = '';
             }
 
-            // Totales
             document.getElementById('pos-subtotal').innerText = formatBs(totalBs);
             document.getElementById('pos-total').innerText = formatBs(totalBs);
         }
         
-        // Ejecutar al inicio
         window.onload = sincronizarTextos;
     </script>
 </body>
