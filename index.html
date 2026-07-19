@@ -44,7 +44,7 @@
         }
 
         /* ================================================== */
-        /* COORDENADAS EXACTAS (CALIBRADAS HACIA ABAJO) */
+        /* COORDENADAS EXACTAS - AJUSTE MILIMÉTRICO FINAL */
         /* ================================================== */
         .texto-flotante {
             position: absolute; 
@@ -59,20 +59,24 @@
         #pos-diagnostico   { top: 285px; left: 240px; font-weight: normal; }
         #pos-procedimiento { top: 308px; left: 240px; }
 
-        /* Fila 1: Admisión y Evaluación */
-        #pos-cant-1   { top: 375px; left: 510px; text-align: center; width: 30px; }
-        #pos-precio-1 { top: 375px; left: 580px; text-align: right; width: 80px; }
-        #pos-monto-1  { top: 375px; right: 85px; text-align: right; width: 120px; }
+        /* Fila 1: Admisión y Evaluación (Bajado a la franja gris) */
+        #pos-cant-1   { top: 385px; left: 510px; text-align: center; width: 30px; }
+        #pos-precio-1 { top: 385px; left: 580px; text-align: right; width: 80px; }
+        #pos-monto-1  { top: 385px; right: 85px; text-align: right; width: 120px; }
 
-        /* Fila 2: Consumos y Servicios */
-        #pos-cant-2   { top: 445px; left: 510px; text-align: center; width: 30px; }
-        #pos-precio-2 { top: 445px; left: 580px; text-align: right; width: 80px; }
-        #pos-monto-2  { top: 445px; right: 85px; text-align: right; width: 120px; }
+        /* Fila 2: Consumos y Servicios (Bajado a la franja gris) */
+        #pos-cant-2   { top: 455px; left: 510px; text-align: center; width: 30px; }
+        #pos-precio-2 { top: 455px; left: 580px; text-align: right; width: 80px; }
+        #pos-monto-2  { top: 455px; right: 85px; text-align: right; width: 120px; }
 
-        /* Totales y Fecha */
-        #pos-subtotal { top: 548px; right: 85px; text-align: right; width: 150px; font-size: 10.5pt; }
-        #pos-total    { top: 610px; right: 85px; text-align: right; width: 150px; font-size: 10.5pt; }
-        #pos-fecha    { top: 686px; left: 680px; font-size: 10pt; }
+        /* Subtotal (Alineado con el círculo verde) */
+        #pos-subtotal { top: 552px; right: 85px; text-align: right; width: 150px; font-size: 10.5pt; }
+        
+        /* Total Presupuesto (Alineado con la línea fuxia) */
+        #pos-total    { top: 615px; right: 85px; text-align: right; width: 150px; font-size: 10.5pt; }
+        
+        /* Fecha (Alineado horizontalmente con la palabra "Fecha" amarilla) */
+        #pos-fecha    { top: 692px; right: 85px; text-align: right; width: 150px; font-size: 10.5pt; }
 
         @media print {
             body { background: transparent; padding: 0; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -84,9 +88,13 @@
 </head>
 <body>
     <div class="ui-container">
-        <h2 class="ui-title">⚙️ Generador Calibrado (Dra. Rosadelca)</h2>
+        <h2 class="ui-title">⚙️ Generador Calibrado a la Perfección (Dra. Rosadelca)</h2>
         <div style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-size: 13px;">
-            <strong>¡Textos alineados!</strong> Se ajustaron las coordenadas hacia abajo para que coincidan perfectamente con las líneas de la factura original.
+            <strong>¡Ajuste al Milímetro Completado!</strong><br>
+            ✔️ Fecha alineada con el texto amarillo.<br>
+            ✔️ Total bajado a la línea fuxia.<br>
+            ✔️ Subtotal en la zona verde.<br>
+            ✔️ Montos posicionados en la franja gris.
         </div>
         
         <div class="form-grid">
@@ -167,6 +175,7 @@
             if (cant1 > 0 && precioUSD1 > 0) {
                 const montoBs1 = cant1 * precioUSD1 * tasa;
                 totalBs += montoBs1;
+                // Si quieres que se vea la cantidad y precio en la fila 1 quita los // de abajo:
                 // document.getElementById('pos-cant-1').innerText = cant1;
                 // document.getElementById('pos-precio-1').innerText = formatBs(precioUSD1 * tasa);
                 document.getElementById('pos-monto-1').innerText = formatBs(montoBs1);
