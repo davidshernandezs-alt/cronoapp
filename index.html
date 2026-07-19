@@ -12,7 +12,7 @@
         .ui-title { color: #0056b3; margin-bottom: 20px; font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         .form-group label { font-size: 12px; font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
-        .form-group input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         
         /* Botones */
         .botones-container { display: flex; gap: 10px; margin-top: 20px; }
@@ -20,6 +20,8 @@
         .btn-print:hover { background: #218838; }
         .btn-save { background: #17a2b8; color: white; border: none; padding: 12px 24px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
         .btn-save:hover { background: #138496; }
+        .btn-add-patient { background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; white-space: nowrap; }
+        .btn-add-patient:hover { background: #0056b3; }
         
         .alert-box { background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 15px; border-radius: 4px; margin-bottom: 20px; font-size: 14px; }
         .upload-btn { background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; }
@@ -110,6 +112,22 @@
             <div class="form-group"><label>Tasa BCV (Bs.):</label><input type="number" id="ui-tasa" value="45.50" step="0.01" oninput="sincronizarTextos()"></div>
             <div class="form-group"><label>Fecha Emisión:</label><input type="text" id="ui-fecha" value="08/07/2026" oninput="sincronizarTextos()"></div>
         </div>
+
+        <!-- ============================================== -->
+        <!-- NUEVO MÓDULO DE PACIENTES GUARDADOS -->
+        <!-- ============================================== -->
+        <div class="form-grid" style="grid-template-columns: 1fr; margin-bottom: 5px;">
+            <div class="form-group" style="background: #e9ecef; padding: 15px; border-radius: 6px;">
+                <label style="color: #0056b3; font-size: 14px;">👥 Cargar Paciente Frecuente:</label>
+                <div style="display: flex; gap: 10px;">
+                    <select id="ui-select-paciente" onchange="seleccionarPaciente()">
+                        <option value="">-- Escribir nuevo o seleccionar paciente --</option>
+                    </select>
+                    <button class="btn-add-patient" onclick="guardarNuevoPaciente()">➕ Guardar Actual en Lista</button>
+                </div>
+            </div>
+        </div>
+
         <div class="form-grid">
             <div class="form-group"><label>Nombre del Paciente:</label><input type="text" id="ui-paciente" value="Daniel Francisco Aceituno" oninput="sincronizarTextos()"></div>
             <div class="form-group" style="display: flex; gap: 10px;">
@@ -138,9 +156,9 @@
             </div>
         </div>
         
-        <!-- NUEVOS BOTONES LADO A LADO -->
+        <!-- BOTONES LADO A LADO -->
         <div class="botones-container">
-            <button class="btn-save" onclick="guardarDatos()">💾 Guardar Datos</button>
+            <button class="btn-save" onclick="guardarDatos()">💾 Guardar Factura Actual</button>
             <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
         </div>
     </div>
@@ -221,7 +239,87 @@
         }
 
         // ==========================================
-        // NUEVAS FUNCIONES DE GUARDADO Y CARGA
+        // GESTIÓN DE PACIENTES FRECUENTES
+        // ==========================================
+        let listaPacientes = [];
+
+        function cargarListaPacientes() {
+            const pacientesGuardados = localStorage.getItem('listaPacientesDra');
+            if (pacientesGuardados) {
+                listaPacientes = JSON.parse(pacientesGuardados);
+            }
+            actualizarDropdown();
+        }
+
+        function actualizarDropdown() {
+            const select = document.getElementById('ui-select-paciente');
+            // Mantiene solo la primera opción por defecto
+            select.innerHTML = '<option value="">-- Escribir nuevo o seleccionar paciente --</option>';
+            
+            // Agrega los pacientes guardados a la lista
+            listaPacientes.forEach((p, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.text = p.nombre;
+                select.appendChild(option);
+            });
+        }
+
+        function seleccionarPaciente() {
+            const index = document.getElementById('ui-select-paciente').value;
+            if (index !== "") {
+                const p = listaPacientes[index];
+                document.getElementById('ui-paciente').value = p.nombre;
+                document.getElementById('ui-ci').value = p.ci;
+                document.getElementById('ui-edad').value = p.edad;
+                
+                // Actualiza visualmente la factura de inmediato
+                sincronizarTextos();
+            } else {
+                // Si eligen la opción vacía, limpia los campos para uno nuevo
+                document.getElementById('ui-paciente').value = "";
+                document.getElementById('ui-ci').value = "";
+                document.getElementById('ui-edad').value = "";
+                sincronizarTextos();
+            }
+        }
+
+        function guardarNuevoPaciente() {
+            const nombre = document.getElementById('ui-paciente').value.trim();
+            const ci = document.getElementById('ui-ci').value.trim();
+            const edad = document.getElementById('ui-edad').value.trim();
+
+            if (!nombre) {
+                alert("⚠️ Debe escribir al menos el Nombre del paciente para poder guardarlo.");
+                return;
+            }
+
+            // Verifica si el paciente ya existe en la lista (sin importar mayúsculas)
+            const indexExistente = listaPacientes.findIndex(p => p.nombre.toLowerCase() === nombre.toLowerCase());
+            
+            if (indexExistente >= 0) {
+                // Si ya existe, simplemente actualiza su cédula y edad
+                listaPacientes[indexExistente] = { nombre, ci, edad };
+                alert("✅ Paciente actualizado en la lista.");
+            } else {
+                // Si no existe, lo agrega al final de la lista
+                listaPacientes.push({ nombre, ci, edad });
+                alert("✅ Nuevo paciente guardado en la lista.");
+            }
+
+            // Guarda la nueva lista en la memoria del navegador
+            localStorage.setItem('listaPacientesDra', JSON.stringify(listaPacientes));
+            
+            // Refresca el selector para mostrar el nuevo nombre
+            actualizarDropdown();
+            
+            // Deja seleccionado al paciente recién guardado
+            const select = document.getElementById('ui-select-paciente');
+            select.value = indexExistente >= 0 ? indexExistente : listaPacientes.length - 1;
+        }
+
+        // ==========================================
+        // FUNCIONES DE GUARDADO DE LA FACTURA
         // ==========================================
         function guardarDatos() {
             const datos = {
@@ -238,19 +336,16 @@
                 precio2: document.getElementById('ui-precio-2').value
             };
             
-            // Guarda en la memoria del navegador
             localStorage.setItem('datosFacturaDra', JSON.stringify(datos));
-            alert('✅ ¡Datos guardados exitosamente!\n\nLa próxima vez que abras este archivo, los datos se cargarán automáticamente.');
+            alert('✅ ¡Datos de la factura actual guardados exitosamente!');
         }
 
         function cargarDatos() {
-            // Busca si hay datos guardados previamente
             const datosGuardados = localStorage.getItem('datosFacturaDra');
             
             if (datosGuardados) {
                 const datos = JSON.parse(datosGuardados);
                 
-                // Rellena los campos con los datos guardados
                 if(datos.tasa) document.getElementById('ui-tasa').value = datos.tasa;
                 if(datos.fecha) document.getElementById('ui-fecha').value = datos.fecha;
                 if(datos.paciente) document.getElementById('ui-paciente').value = datos.paciente;
@@ -263,13 +358,14 @@
                 if(datos.cant2) document.getElementById('ui-cant-2').value = datos.cant2;
                 if(datos.precio2) document.getElementById('ui-precio-2').value = datos.precio2;
             }
-            
-            // Sincroniza la vista de la factura
             sincronizarTextos();
         }
         
-        // Al cargar la página, primero intenta cargar datos y luego sincroniza
-        window.onload = cargarDatos;
+        // Al cargar la página, carga los pacientes, los datos anteriores y sincroniza la vista
+        window.onload = function() {
+            cargarListaPacientes();
+            cargarDatos();
+        };
     </script>
 </body>
 </html>
