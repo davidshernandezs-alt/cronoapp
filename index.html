@@ -22,9 +22,6 @@
         .btn-save:hover { background: #138496; }
         .btn-add-patient { background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; white-space: nowrap; }
         .btn-add-patient:hover { background: #0056b3; }
-        
-        .alert-box { background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 15px; border-radius: 4px; margin-bottom: 20px; font-size: 14px; }
-        .upload-btn { background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 10px; }
 
         /* ================================================== */
         /* ÁREA DE LA FACTURA (TAMAÑO CARTA EXACTO) */
@@ -100,14 +97,6 @@
     <div class="ui-container">
         <h2 class="ui-title">⚙️ Generador Definitivo - Control Total (Dra. Rosadelca) <span style="font-size:12px; color:green;">(Sincronizado con Nube)</span></h2>
         
-        <div class="alert-box">
-            <strong>¿No ves el fondo de la factura?</strong><br>
-            Haz clic en el botón de abajo y selecciona tu archivo <b>fondo_4.jpg</b> desde tu computadora. Así garantizamos que SIEMPRE se vea, sin importar dónde guardes el archivo.
-            <br>
-            <input type="file" id="imageLoader" accept="image/*" style="display:none;">
-            <button class="upload-btn" onclick="document.getElementById('imageLoader').click();">🖼️ Cargar Imagen de Fondo Manualmente</button>
-        </div>
-        
         <div class="form-grid">
             <div class="form-group"><label>Tasa BCV (Bs.):</label><input type="number" id="ui-tasa" value="45.50" step="0.01" oninput="sincronizarTextos()"></div>
             <div class="form-group"><label>Fecha Emisión:</label><input type="text" id="ui-fecha" value="" oninput="sincronizarTextos()"></div>
@@ -165,7 +154,7 @@
 
     <!-- ÁREA DE LA FACTURA -->
     <div class="hoja-factura">
-        <img id="bg-img" src="fondo_4.jpg" class="imagen-fondo-real" alt="Fondo" onerror="if(!this.src.includes('fondo.jpg')){this.src='fondo.jpg';}">
+        <img id="bg-img" src="https://firebasestorage.googleapis.com/v0/b/mi-portal-84bd1.firebasestorage.app/o/fondo.png?alt=media&token=0f168ca0-f09f-4781-b175-5f14d32114ca" class="imagen-fondo-real" alt="Fondo">
         
         <div class="texto-flotante" id="pos-paciente"></div>
         <div class="texto-flotante" id="pos-ci"></div>
@@ -191,7 +180,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
-        // Credenciales extraídas del proyecto proporcionado
         const firebaseConfig = {
             apiKey: "AIzaSyDmtI70sEjbB6k3tkgtVuSYHBclDh6tiLE",
             authDomain: "mi-portal-84bd1.firebaseapp.com",
@@ -206,19 +194,15 @@
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
-        // Variables Globales
         window.listaPacientes = [];
 
-        // Referencia a la colección exclusiva de pacientes de la doctora
         const pacientesRef = ref(database, 'pacientes_dra');
 
-        // Escuchar cambios en la base de datos en tiempo real
         onValue(pacientesRef, (snapshot) => {
             const data = snapshot.val();
             window.listaPacientes = [];
             
             if (data) {
-                // Convertir el objeto de Firebase a un array
                 for (let key in data) {
                     window.listaPacientes.push({
                         idFirebase: key,
@@ -238,12 +222,10 @@
 
         function actualizarDropdown() {
             const select = document.getElementById('ui-select-paciente');
-            // Guardar la selección actual si existe
             const valorActual = select.value;
             
             select.innerHTML = '<option value="">-- Escribir nuevo o seleccionar paciente --</option>';
             
-            // Ordenar alfabéticamente por nombre
             window.listaPacientes.sort((a, b) => a.nombre.localeCompare(b.nombre));
 
             window.listaPacientes.forEach((p, index) => {
@@ -253,13 +235,11 @@
                 select.appendChild(option);
             });
             
-            // Restaurar selección si aplica
             if(valorActual && valorActual < window.listaPacientes.length) {
                 select.value = valorActual;
             }
         }
 
-        // Exponer funciones al scope global para que los botones HTML puedan usarlas
         window.seleccionarPaciente = function() {
             const index = document.getElementById('ui-select-paciente').value;
             if (index !== "") {
@@ -290,10 +270,8 @@
             btn.disabled = true;
 
             try {
-                // Crear una clave única segura para Firebase (reemplaza espacios y caracteres raros)
                 const claveSegura = nombre.replace(/[\.#\$\/\[\]\s]/g, "_").toLowerCase();
                 
-                // Guardar en Firebase
                 await set(ref(database, 'pacientes_dra/' + claveSegura), {
                     nombre: nombre,
                     ci: ci,
@@ -311,25 +289,12 @@
             }
         };
 
-        // Asignar evento al botón directamente por si el onclick falla
         document.getElementById('btnGuardarNube').addEventListener('click', window.guardarNuevoPaciente);
 
     </script>
 
     <!-- SCRIPT DE INTERFAZ TRADICIONAL -->
     <script>
-        // Cargar imagen manual
-        document.getElementById('imageLoader').addEventListener('change', function(e){
-            var reader = new FileReader();
-            reader.onload = function(event){
-                document.getElementById('bg-img').src = event.target.result;
-            }
-            if(e.target.files[0]) {
-                reader.readAsDataURL(e.target.files[0]);
-            }
-        });
-
-        // Setear fecha de hoy al cargar por defecto
         if(!document.getElementById('ui-fecha').value){
              const hoy = new Date();
              document.getElementById('ui-fecha').value = hoy.toLocaleDateString('es-VE');
@@ -373,7 +338,6 @@
             document.getElementById('pos-total').innerText = formatBs(totalBs);
         };
 
-        // Guardado local SOLO para el estado del formulario (Tasa, fechas, etc)
         window.guardarDatosLocales = function() {
             const datos = {
                 tasa: document.getElementById('ui-tasa').value,
