@@ -131,14 +131,14 @@
         
         <h3 style="font-size: 14px; color: #0056b3; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Costos en Ref. Dólares ($)</h3>
         <div class="form-grid" style="align-items: end;">
-            <div class="form-group"><label>Concepto 1 (Admisión):</label><input type="text" value="SERVICIO DE ADMISION..." readonly style="background:#f5f5f5; color:#777; border:none;"></div>
+            <div class="form-group"><label>Concepto 1 (Admisión):</label><input type="text" id="ui-desc-1" value="SERVICIO DE ADMISION..." oninput="sincronizarTextos()"></div>
             <div class="form-group" style="display:flex; gap:10px;">
                 <div style="width:30%"><label>Cant:</label><input type="number" id="ui-cant-1" value="1" oninput="sincronizarTextos()"></div>
                 <div style="width:70%"><label>Precio ($):</label><input type="number" id="ui-precio-1" value="450.00" step="0.01" oninput="sincronizarTextos()"></div>
             </div>
         </div>
         <div class="form-grid" style="align-items: end;">
-            <div class="form-group"><label style="color:#dc3545;">Concepto 2 (Consumos - Línea azul):</label><input type="text" value="* CONSUMOS Y SERVICIOS..." readonly style="background:#f5f5f5; color:#777; border:none;"></div>
+            <div class="form-group"><label style="color:#dc3545;">Concepto 2 (Consumos - Línea azul):</label><input type="text" id="ui-desc-2" value="* CONSUMOS Y SERVICIOS..." oninput="sincronizarTextos()"></div>
             <div class="form-group" style="display:flex; gap:10px;">
                 <div style="width:30%"><label>Cant:</label><input type="number" id="ui-cant-2" value="1" oninput="sincronizarTextos()"></div>
                 <div style="width:70%"><label>Precio ($):</label><input type="number" id="ui-precio-2" value="8595.00" step="0.01" oninput="sincronizarTextos()"></div>
@@ -215,9 +215,17 @@
             
             actualizarDropdown();
             document.getElementById('status-nube').innerText = "🟢 Sincronizado";
+            localStorage.setItem('pacientesLocalesDra', JSON.stringify(window.listaPacientes));
         }, (error) => {
             console.error("Error al conectar con Firebase:", error);
-            document.getElementById('status-nube').innerText = "🔴 Error de conexión";
+            document.getElementById('status-nube').innerText = "🔴 Modo Local (Sin Nube)";
+            const localesGuardados = localStorage.getItem('pacientesLocalesDra');
+            if (localesGuardados) {
+                try {
+                    window.listaPacientes = JSON.parse(localesGuardados);
+                    actualizarDropdown();
+                } catch(e) {}
+            }
         });
 
         function actualizarDropdown() {
@@ -266,6 +274,18 @@
                 return;
             }
 
+            // Guardar localmente de respaldo
+            let locales = JSON.parse(localStorage.getItem('pacientesLocalesDra') || '[]');
+            const existeIndex = locales.findIndex(p => p.nombre.toLowerCase() === nombre.toLowerCase());
+            if (existeIndex >= 0) {
+                locales[existeIndex] = { nombre, ci, edad };
+            } else {
+                locales.push({ nombre, ci, edad });
+            }
+            localStorage.setItem('pacientesLocalesDra', JSON.stringify(locales));
+            window.listaPacientes = locales;
+            actualizarDropdown();
+
             btn.innerText = "⏳ Guardando...";
             btn.disabled = true;
 
@@ -279,10 +299,10 @@
                     ultimaModificacion: new Date().toISOString()
                 });
 
-                alert("☁️ ✅ Paciente guardado/actualizado correctamente en la Nube.");
+                alert("☁️ ✅ Paciente guardado correctamente en la Nube y localmente.");
             } catch (error) {
                 console.error("Error al guardar en Firebase:", error);
-                alert("Hubo un error al guardar en la nube.");
+                alert("⚠️ Guardado localmente (La nube reportó error de conexión o reglas de seguridad).");
             } finally {
                 btn.innerText = "☁️ Guardar Actual en Nube";
                 btn.disabled = false;
@@ -347,8 +367,10 @@
                 edad: document.getElementById('ui-edad').value,
                 diagnostico: document.getElementById('ui-diagnostico').value,
                 procedimiento: document.getElementById('ui-procedimiento').value,
+                desc1: document.getElementById('ui-desc-1').value,
                 cant1: document.getElementById('ui-cant-1').value,
                 precio1: document.getElementById('ui-precio-1').value,
+                desc2: document.getElementById('ui-desc-2').value,
                 cant2: document.getElementById('ui-cant-2').value,
                 precio2: document.getElementById('ui-precio-2').value
             };
@@ -365,8 +387,10 @@
                 if(datos.fecha) document.getElementById('ui-fecha').value = datos.fecha;
                 if(datos.diagnostico) document.getElementById('ui-diagnostico').value = datos.diagnostico;
                 if(datos.procedimiento) document.getElementById('ui-procedimiento').value = datos.procedimiento;
+                if(datos.desc1) document.getElementById('ui-desc-1').value = datos.desc1;
                 if(datos.cant1) document.getElementById('ui-cant-1').value = datos.cant1;
                 if(datos.precio1) document.getElementById('ui-precio-1').value = datos.precio1;
+                if(datos.desc2) document.getElementById('ui-desc-2').value = datos.desc2;
                 if(datos.cant2) document.getElementById('ui-cant-2').value = datos.cant2;
                 if(datos.precio2) document.getElementById('ui-precio-2').value = datos.precio2;
             }
