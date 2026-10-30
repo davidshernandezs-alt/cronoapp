@@ -178,20 +178,22 @@
     <!-- SCRIPT DE FIREBASE TIPO MODULE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-analytics.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDmtI70sEjbB6k3tkgtVuSYHBclDh6tiLE",
-            authDomain: "mi-portal-84bd1.firebaseapp.com",
-            projectId: "mi-portal-84bd1",
-            storageBucket: "mi-portal-84bd1.firebasestorage.app",
-            messagingSenderId: "153791649699",
-            appId: "1:153791649699:web:a3db5d540b874168b1ec16",
-            measurementId: "G-23QLTK5ZGZ",
-            databaseURL: "https://mi-portal-84bd1-default-rtdb.firebaseio.com/"
+            apiKey: "AIzaSyB_925WYh2DCr6HPJwOhueeIVBiAmCHIoA",
+            authDomain: "facturas-1adfd.firebaseapp.com",
+            projectId: "facturas-1adfd",
+            storageBucket: "facturas-1adfd.firebasestorage.app",
+            messagingSenderId: "604183995004",
+            appId: "1:604183995004:web:a5222f218e1fc33c59dff9",
+            measurementId: "G-6WS0LXHQB6",
+            databaseURL: "https://facturas-1adfd-default-rtdb.firebaseio.com/"
         };
 
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
         const database = getDatabase(app);
 
         window.listaPacientes = [];
